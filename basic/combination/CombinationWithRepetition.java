@@ -1,3 +1,11 @@
+// https://www.acmicpc.net/problem/15652
+// 중복조합의 핵심은 재귀 호출 시 현재 인덱스부터 다시 선택하여(즉, start 값을 유지) 중복 선택이 가능하도록 하는 것과, 
+// 비내림차순을 유지하여 중복되는 조합을 방지하는 것입니다.
+
+// The key point of combination with repetition is to allow duplicate selections by recursively calling starting 
+// from the current index (i.e., maintaining the start value),
+// and to prevent duplicate combinations by keeping the sequence in non-decreasing order.
+
 import java.util.Scanner;
 
 public class CombinationWithRepetition {
