@@ -1,17 +1,17 @@
-# The key point of combination with repetition is to allow duplicate selections 
-# by recursively calling starting from the current index (i.e., maintaining the start value),
-# and to prevent duplicate combinations by keeping the sequence in non-decreasing order.
+import sys
 
 def dfs(start, depth, comb):
-    if depth == M:  # If the sequence reaches length M, print the combination
-        print(" ".join(map(str, comb)))
+    if depth == M:  # When the sequence reaches length M, add the combination to the output list
+        output.append(" ".join(map(str, comb)))
         return
     for i in range(start, N + 1):  # Ensure non-decreasing order
         comb.append(i)           # Add number to the current combination
-        dfs(i, depth + 1, comb)    # Recursive call with same 'i' for duplicates
-        comb.pop()               # Backtrack
+        dfs(i, depth + 1, comb)    # Recursive call with the same 'i' to allow duplicates
+        comb.pop()               # Backtrack: remove the last element
 
-import sys
 input = sys.stdin.readline
 N, M = map(int, input().split())  # Read N and M from input
+output = []  # List to accumulate all combinations
+
 dfs(1, 0, [])
+print("\n".join(output))  # Print all combinations at once

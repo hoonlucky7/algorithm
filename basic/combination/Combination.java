@@ -7,6 +7,33 @@
 // During recursive calls, the next selection starts from a number greater than the current one (i+1), 
 // ensuring that the order is maintained and duplicate combinations are avoided.
 
+// dfs(1, 0)
+// ├── [1]  → dfs(2, 1)
+// │      ├── [1, 2]  → dfs(3, 2)
+// │      │      ├── [1, 2, 3]  → dfs(4, 3)   → Output: 1 2 3
+// │      │      ├── [1, 2, 4]  → dfs(5, 3)   → Output: 1 2 4
+// │      │      └── [1, 2, 5]  → dfs(6, 3)   → Output: 1 2 5
+// │      ├── [1, 3]  → dfs(4, 2)
+// │      │      ├── [1, 3, 4]  → dfs(5, 3)   → Output: 1 3 4
+// │      │      └── [1, 3, 5]  → dfs(6, 3)   → Output: 1 3 5
+// │      ├── [1, 4]  → dfs(5, 2)
+// │      │      └── [1, 4, 5]  → dfs(6, 3)   → Output: 1 4 5
+// │      └── [1, 5]  → dfs(6, 2)   → (Incomplete, no output)
+// ├── [2]  → dfs(3, 1)
+// │      ├── [2, 3]  → dfs(4, 2)
+// │      │      ├── [2, 3, 4]  → dfs(5, 3)   → Output: 2 3 4
+// │      │      └── [2, 3, 5]  → dfs(6, 3)   → Output: 2 3 5
+// │      ├── [2, 4]  → dfs(5, 2)
+// │      │      └── [2, 4, 5]  → dfs(6, 3)   → Output: 2 4 5
+// │      └── [2, 5]  → dfs(6, 2)   → (Incomplete, no output)
+// ├── [3]  → dfs(4, 1)
+// │      ├── [3, 4]  → dfs(5, 2)
+// │      │      └── [3, 4, 5]  → dfs(6, 3)   → Output: 3 4 5
+// │      └── [3, 5]  → dfs(6, 2)   → (Incomplete, no output)
+// ├── [4]  → dfs(5, 1)
+// │      └── [4, 5]  → dfs(6, 2)   → (Incomplete, no output)
+// └── [5]  → dfs(6, 1)   → (Incomplete, no output)
+
 import java.util.Scanner;
 
 public class Combination {
@@ -26,17 +53,17 @@ public class Combination {
     }
 
     private static void dfs(int start, int depth) {
-        if (depth == M) { // If the combination reaches length M, store it in StringBuilder
+        if (depth == M) {
             for (int num : combination) {
                 sb.append(num).append(" ");
             }
-            sb.append("\n"); // Append a newline after each valid combination
+            sb.append("\n");
             return;
         }
-
         for (int i = start; i <= N; i++) {
-            combination[depth] = i; // Add number to the current combination
-            dfs(i + 1, depth + 1); // Recursively generate the next depth
+            combination[depth] = i;
+            dfs(i + 1, depth + 1);
+            combination[depth] = 0;
         }
     }
 }

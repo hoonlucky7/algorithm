@@ -6,6 +6,38 @@
 // from the current index (i.e., maintaining the start value),
 // and to prevent duplicate combinations by keeping the sequence in non-decreasing order.
 
+// dfs(1, 0)  []  
+// │  
+// ├─ [i=1] sequence[0] = 1 → dfs(1, 1)  [1]  
+// │      │  
+// │      ├─ [i=1] sequence[1] = 1 → dfs(1, 2)  [1, 1]  → 출력: "1 1"  
+// │      │  
+// │      ├─ [i=2] sequence[1] = 2 → dfs(2, 2)  [1, 2]  → 출력: "1 2"  
+// │      │  
+// │      ├─ [i=3] sequence[1] = 3 → dfs(3, 2)  [1, 3]  → 출력: "1 3"  
+// │      │  
+// │      └─ [i=4] sequence[1] = 4 → dfs(4, 2)  [1, 4]  → 출력: "1 4"  
+// │  
+// ├─ [i=2] sequence[0] = 2 → dfs(2, 1)  [2]  
+// │      │  
+// │      ├─ [i=2] sequence[1] = 2 → dfs(2, 2)  [2, 2]  → 출력: "2 2"  
+// │      │  
+// │      ├─ [i=3] sequence[1] = 3 → dfs(3, 2)  [2, 3]  → 출력: "2 3"  
+// │      │  
+// │      └─ [i=4] sequence[1] = 4 → dfs(4, 2)  [2, 4]  → 출력: "2 4"  
+// │  
+// ├─ [i=3] sequence[0] = 3 → dfs(3, 1)  [3]  
+// │      │  
+// │      ├─ [i=3] sequence[1] = 3 → dfs(3, 2)  [3, 3]  → 출력: "3 3"  
+// │      │  
+// │      └─ [i=4] sequence[1] = 4 → dfs(4, 2)  [3, 4]  → 출력: "3 4"  
+// │  
+// └─ [i=4] sequence[0] = 4 → dfs(4, 1)  [4]  
+//        │  
+//        └─ [i=4] sequence[1] = 4 → dfs(4, 2)  [4, 4]  → 출력: "4 4"
+
+
+
 import java.util.Scanner;
 
 public class CombinationWithRepetition {
@@ -25,17 +57,17 @@ public class CombinationWithRepetition {
     }
 
     private static void dfs(int start, int depth) {
-        if (depth == M) { // If the sequence reaches length M, store it in StringBuilder
+        if (depth == M) {
             for (int num : sequence) {
                 sb.append(num).append(" ");
             }
-            sb.append("\n"); // Append a newline after each valid sequence
+            sb.append("\n");
             return;
         }
-
-        for (int i = start; i <= N; i++) { // Ensure non-decreasing order
-            sequence[depth] = i; // Add number to the current sequence
-            dfs(i, depth + 1); // Recursive call with same 'i' for duplicates
+        for (int i = start; i <= N; i++) {
+            sequence[depth] = i;
+            dfs(i, depth + 1);
+            sequence[depth] = 0;
         }
     }
 }
