@@ -1,42 +1,50 @@
 import java.util.Scanner;
 
 public class CombinationWithRepetitionModified {
-    private static int N, M;
-    private static int[] sequenceCounts;
-    private static StringBuilder sb = new StringBuilder(); // StringBuilder for efficient output
+    private static int N, M; // N: Range of selectable numbers (1~N), M: Total numbers to choose
+    private static int[] count; // Array to store how many times each number is selected
+    private static StringBuilder sb = new StringBuilder(); // StringBuilder for efficient output storage
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        // N: number of targets (or segments), M: total count to be allocated
-        N = sc.nextInt();
-        M = sc.nextInt();
-        sequenceCounts = new int[N + 1]; // Array to store the allocation counts for each target
+        N = sc.nextInt(); // Maximum number range (1~N)
+        M = sc.nextInt(); // Total count of numbers to be selected
+        count = new int[N + 1]; // Allocate an array of size N+1 (1-based index)
         sc.close();
 
-        dfs(1, M);
-        System.out.print(sb.toString()); // Print all stored sequences at once
+        dfs(1, M); // Start from 1 and choose M numbers
+        System.out.print(sb.toString()); // Print all results at once
     }
 
-    // i: current target index, n: remaining count
-    private static void dfs(int i, int n) {
-        if (i == N + 1) { // When decisions have been made for all targets
-            // Process only valid combinations where the remaining count is 0
-            if (n == 0) {
-                for (int num = 1; num <= N; num++) {
-                    for (int c = 1; c <= sequenceCounts[num]; c++) {
-                        sb.append(num).append(" ");
-                    }
-                }
-                sb.append("\n");
+    /**
+     * Recursive function to generate combinations with repetition
+     * @param currentNumber The number currently being considered for selection
+     * @param remainingCount The number of remaining selections to be made
+     */
+    private static void dfs(int currentNumber, int remainingCount) {
+        if (currentNumber == N + 1) {
+            if (remainingCount == 0) {
+                saveCombination();
             }
             return;
         }
-        // Distribute counts from n down to 0 for the current target i.
-        // (Allocating from n down to 0 results in reverse order output)
-        for (int count = n; count >= 0; count--) {
-            sequenceCounts[i] = count;
-            dfs(i + 1, n - count);
-            sequenceCounts[i] = 0; // Backtracking: restore the previous state
+
+        for (int countOfCurrent = remainingCount; countOfCurrent >= 0; countOfCurrent--) {
+            count[currentNumber] = countOfCurrent;
+            dfs(currentNumber + 1, remainingCount - countOfCurrent);
+            count[currentNumber] = 0;
         }
+    }
+
+    /**
+     * Save the currently selected combination into StringBuilder
+     */
+    private static void saveCombination() {
+        for (int num = 1; num <= N; num++) {
+            for (int i = 0; i < count[num]; i++) {
+                sb.append(num).append(" ");
+            }
+        }
+        sb.append("\n");
     }
 }
