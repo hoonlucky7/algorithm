@@ -17,7 +17,6 @@ https://school.programmers.co.kr/learn/courses/30/lessons/92342
 어피치와 라이언이 동일한 화살 수를 쐈다면 어피치가 해당 점수를 가져감.
 둘 다 화살을 쏘지 않았다면 점수 없음.
 최종 점수 합이 높은 선수가 승리.
-점수가 동일하면 어피치가 승리.
 라이언이 가장 큰 점수 차이로 우승할 수 있는 화살 분배를 찾아야 함.
 여러 가지 방법이 있을 경우, 낮은 점수를 더 많이 맞힌 경우를 선택.
 입력:
@@ -47,53 +46,94 @@ nHr = n-1+rCr
 10 9 9 
 ...
 
-solution 2) 2^n 알고리즘 (점수를 가져가? 말아?)
-
-실제 구현 시 최적화 방법 완전 탐색을 최적화하려면,
-해당 점수대 점수를 가져가려면 어피치보다 +1발, 아니면 0발정도로만 시도해도 충분합니다.
-그리고 마지막(0점 과녁)에는 남은 화살을 몰아넣는 식으로 처리하면,
-불필요한 배분(예: 이미 +1발이면 점수를 확보했는데, +2, +3, ...)을 건너뛸 수 있어 탐색 범위를 많이 줄일 수 있습니다.
-이처럼, “어피치보다 1발 더 쓰거나(점수 확보), 아예 안 쓰거나(점수 포기)”만 고려해도 
-이론상 점수 면에서는 동일한 결과를 얻을 수 있습니다.
-
-***0점 과녁을 어떻게 처리 할지 정리***
-라이언이 가장 큰 점수 차이로 우승할 수 있는 방법이 여러 가지 일 경우, 가장 낮은 점수를 더 많이 맞힌 경우를 return
-0점 과녁은 점수에 영향이 없지만, 0점 쪽에서 남은 화살을 많이 배분 해야함
-
  */
+
+/*
+english version
+2022 KAKAO BLIND RECRUITMENT
+Problem 4 - Archery Competition
+
+Problem Link:
+https://school.programmers.co.kr/learn/courses/30/lessons/92342
+
+[Problem Summary]
+
+Goal: Ryan must determine the scoring target allocation for his arrows 
+so that he wins against Apeach by the largest possible score difference.
+
+Rules:
+- For each score (k points, where k = 10 to 0), 
+the player who shoots more arrows at that target wins that score.
+- If Apeach and Ryan shoot the same number of arrows at a target, Apeach wins that score.
+- If neither player shoots any arrows at a target, no points are awarded.
+- The winner is the player with the higher total score.
+- Ryan must find the arrow allocation that wins by the largest score difference.
+- If multiple allocations yield the same maximum score difference, 
+choose the one where Ryan hits more arrows at lower score targets.
+
+Input:
+- n: The number of arrows Ryan can shoot (1 ≤ n ≤ 10)
+- info: An array representing the number of arrows Apeach hit for scores from 10 to 0 
+(length 11, sum equals n)
+
+Output:
+- An array representing Ryan's arrow allocation (length 11, sum equals n), 
+or [-1] if winning is impossible.
+
+
+[Solution Approach]
+
+Solution 1) Brute-force search (combinations with repetition)
+- Total number of cases using combinations with repetition: 184,756
+
+For example, if there are 3 arrows, possible allocations (with repetition allowed) 
+for scores 10 to 0 could be:
+10 10 10  
+10 10 9  
+10 10 8  
+10 9 9  
+...
+*/
 
 import java.util.Arrays;
 
 public class ArcheryCompetition {
-    int lastTargetPosition = 10;
+    int lastIndex = 10;
     int maxGap = 0;
     int[] answer;
 
+    // Updates the maximum score gap and the answer array based on the current allocation
     public void updateMaxGap(int[] info, int[] ryan) {
         int apeachSumScore = 0;
         int ryanSumScore = 0;
-        for (int i = 0; i <= lastTargetPosition; i++) {
+        for (int i = 0; i <= lastIndex; i++) {
+            // Skip this target if both players did not hit any arrows
             if (info[i] == 0 && ryan[i] == 0) {
                 continue;
             }
+            // If Apeach has hit equal to or more arrows, Apeach wins the score for this target
             if (info[i] >= ryan[i]) {
                 apeachSumScore += 10 - i;
             }
+            // If Ryan has hit more arrows, Ryan wins the score for this target
             if (info[i] < ryan[i]) {
                 ryanSumScore += 10 - i;
             }
         }
         int scoreGap = ryanSumScore - apeachSumScore;
+        // If Ryan does not win, do not update the result
         if (scoreGap <= 0) {
             return;
         }
 
+        // Update if a larger score gap is found
         if (maxGap < scoreGap) {
             maxGap = scoreGap;
             System.arraycopy(ryan, 0, answer, 0, ryan.length);
         }
+        // If the score gap is equal, choose the allocation with more arrows in the lower score targets
         if (maxGap == scoreGap) {
-            for (int i = lastTargetPosition; i >= 0; i--) {
+            for (int i = lastIndex; i >= 0; i--) {
                 if (answer[i] > ryan[i]) {
                     return;
                 }
@@ -105,45 +145,24 @@ public class ArcheryCompetition {
         }
     }
 
-    //solution 2 : 점수를 가져가? 말아? 전략
+    // DFS (brute-force search) to try all possible arrow allocations (combinations with repetition)
     public void dfs(int i, int[] info, int[] ryan, int n) {
-        if (i == lastTargetPosition + 1) {
+        // When all targets (from 10 to 0) have been assigned, update the maximum score gap
+        if (i == lastIndex + 1) {
             updateMaxGap(info, ryan);
             return;
         }
-
-        //10 - i점 과녁에 못 맞추는 경우
-        ryan[i] = 0;
-        dfs(i + 1, info, ryan, n);
-
-        //10 - i점 과녁에 맞추는 경우는 무조건 어피치보다 한발을 더 맞추면 됨
-        if (i == lastTargetPosition) { 
-            // 라이언이 가장 큰 점수 차이로 우승할 수 있는 방법이 여러 가지 일 경우, 가장 낮은 점수를 더 많이 맞힌 경우를 return
-            // 0점 과녁은 점수에 영향이 없지만, 0점 쪽에서 남은 화살을 많이 배분 해야함
-            ryan[i] = n;
-        } else {
-            ryan[i] = info[i] + 1;
-        }
-        if (n - ryan[i] >= 0) {
-            dfs(i + 1, info, ryan, n - ryan[i]);
+        // For the current target (score: 10 - i), try allocating from 0 to n arrows
+        for (int count = 0; count <= n; count++) {
+            ryan[i] = count;
+            dfs(i + 1, info, ryan, n - count);
+            // Backtracking: reset the arrow count for this target
+            ryan[i] = 0;
         }
     }
 
-    // solution 1 : 중복 조합 완전 탐색
-    // public void dfs(int i, int[] info, int[] ryan, int n) {
-    //     if (i == lastTargetPosition + 1) {
-    //         updateMaxGap(info, ryan);
-    //         return;
-    //     }
-    //     for (int count = 0; count <= n; count++) { // 현재 10 - i점 과녁에 몇개 맞출래?
-    //         ryan[i] = count;
-    //         dfs(i + 1, info, ryan, n - count);
-    //         ryan[i] = 0;
-    //     }
-    // }
-
     public int[] solution(int n, int[] info) {
-        int[] ryan = new int[]{0,0,0,0,0,0,0,0,0,0,0};
+        int[] ryan = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         answer = new int[ryan.length];
         maxGap = 0;
         dfs(0, info, ryan, n);
@@ -154,19 +173,17 @@ public class ArcheryCompetition {
     }
 
     public static void main(String[] args) {
-
         ArcheryCompetition archeryCompetition = new ArcheryCompetition();
-        int[] info1 = new int[]{2,1,1,1,0,0,0,0,0,0,0};
+        int[] info1 = new int[]{2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
         System.out.println(Arrays.toString(archeryCompetition.solution(5, info1)));
 
-        int[] info2 = new int[]{1,0,0,0,0,0,0,0,0,0,0};
-        System.out.println(Arrays.toString(archeryCompetition.solution(1,	info2)));
+        int[] info2 = new int[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        System.out.println(Arrays.toString(archeryCompetition.solution(1, info2)));
 
-        int[] info3 = new int[]{0,0,1,2,0,1,1,1,1,1,1};
-        System.out.println(Arrays.toString(archeryCompetition.solution(9,	info3)));
- 
-        int[] info4 = new int[]{0,0,0,0,0,0,0,0,3,4,3};
+        int[] info3 = new int[]{0, 0, 1, 2, 0, 1, 1, 1, 1, 1, 1};
+        System.out.println(Arrays.toString(archeryCompetition.solution(9, info3)));
+
+        int[] info4 = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 3};
         System.out.println(Arrays.toString(archeryCompetition.solution(10, info4)));
-        
     }
 }
