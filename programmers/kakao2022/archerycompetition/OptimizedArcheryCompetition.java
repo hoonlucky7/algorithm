@@ -54,42 +54,65 @@ but should receive as many of the remaining arrows as possible.
 import java.util.Arrays;
 
 public class OptimizedArcheryCompetition {
-    int lastIndex = 10;
-    int maxGap = 0;
-    int[] answer;
+    int lastIndex = 10; // Index of the last target (0 points)
+    int maxGap = 0;     // Maximum score difference achieved by Ryan so far
+    int[] answer;        // Best arrow allocation for Ryan that maximizes the score gap
 
+    /**
+     * Updates the global `maxGap` and `answer` if the current `ryan` allocation
+     * results in a larger score gap or the same score gap with a better allocation
+     * (prioritizing more arrows in lower-scoring targets).
+     *
+     * @param info Apeach's arrow counts for each target (index 0 to 10).
+     * @param ryan Ryan's arrow counts for each target (index 0 to 10) for the current allocation.
+     */
     public void updateMaxGap(int[] info, int[] ryan) {
-        int apeachSumScore = 0;
-        int ryanSumScore = 0;
+        int apeachSumScore = 0; // Initialize Apeach's total score
+        int ryanSumScore = 0;   // Initialize Ryan's total score
+
+        // Calculate scores for each target (0 to lastIndex)
         for (int i = 0; i <= lastIndex; i++) {
+            // If neither Apeach nor Ryan shot any arrows at this target, skip to the next target
             if (info[i] == 0 && ryan[i] == 0) {
                 continue;
             }
+            // If Apeach shot more or equal arrows, Apeach gets the points for this target
             if (info[i] >= ryan[i]) {
-                apeachSumScore += 10 - i;
+                apeachSumScore += 10 - i; // Points are (10 - target index)
             }
+            // If Ryan shot more arrows, Ryan gets the points for this target
             if (info[i] < ryan[i]) {
-                ryanSumScore += 10 - i;
+                ryanSumScore += 10 - i;   // Points are (10 - target index)
             }
         }
-        int scoreGap = ryanSumScore - apeachSumScore;
+
+        int scoreGap = ryanSumScore - apeachSumScore; // Calculate the score difference between Ryan and Apeach
+        // If the score gap is not positive (Ryan didn't win), no need to update maxGap
         if (scoreGap <= 0) {
             return;
         }
 
+        // If the current score gap is greater than the current maxGap, update maxGap and answer
         if (maxGap < scoreGap) {
             maxGap = scoreGap;
-            System.arraycopy(ryan, 0, answer, 0, ryan.length);
+            System.arraycopy(ryan, 0, answer, 0, ryan.length); // Copy ryan's allocation to answer
         }
+        // If the current score gap is equal to the current maxGap,
+        // check if the current allocation is better based on lower-scoring targets
         if (maxGap == scoreGap) {
+            // Iterate from the lowest scoring target (index 10) to the highest (index 0)
             for (int i = lastIndex; i >= 0; i--) {
+                // If the existing answer has more arrows in a lower-scoring target, 
+                // it's still better
                 if (answer[i] > ryan[i]) {
-                    return;
+                    return; // No update needed, existing answer is preferred
                 }
+                // If the current allocation has more arrows in a lower-scoring target, update answer
                 if (answer[i] < ryan[i]) {
-                    System.arraycopy(ryan, 0, answer, 0, ryan.length);
-                    return;
+                    System.arraycopy(ryan, 0, answer, 0, ryan.length); // Copy ryan's allocation to answer
+                    return; // Update done, exit the function
                 }
+                // If arrow counts are the same for this target, continue to the next lower-scoring target
             }
         }
     }
