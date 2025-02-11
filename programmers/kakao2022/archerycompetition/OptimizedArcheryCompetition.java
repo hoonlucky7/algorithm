@@ -96,6 +96,7 @@ public class OptimizedArcheryCompetition {
         if (maxGap < scoreGap) {
             maxGap = scoreGap;
             System.arraycopy(ryan, 0, answer, 0, ryan.length); // Copy ryan's allocation to answer
+            return;
         }
         // If the current score gap is equal to the current maxGap,
         // check if the current allocation is better based on lower-scoring targets

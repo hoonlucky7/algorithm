@@ -130,6 +130,7 @@ public class ArcheryCompetition {
         if (maxGap < scoreGap) {
             maxGap = scoreGap;
             System.arraycopy(ryan, 0, answer, 0, ryan.length);
+            return;
         }
         // If the score gap is equal, choose the allocation with more arrows in the lower score targets
         if (maxGap == scoreGap) {
@@ -146,16 +147,16 @@ public class ArcheryCompetition {
     }
 
     // DFS (brute-force search) to try all possible arrow allocations (combinations with repetition)
-    public void dfs(int i, int[] info, int[] ryan, int n) {
+    public void dfs(int i, int[] info, int[] ryan, int remainingArrows) {
         // When all targets (from 10 to 0) have been assigned, update the maximum score gap
         if (i == lastIndex + 1) {
             updateMaxGap(info, ryan);
             return;
         }
         // For the current target (score: 10 - i), try allocating from 0 to n arrows
-        for (int count = 0; count <= n; count++) {
+        for (int count = 0; count <= remainingArrows; count++) {
             ryan[i] = count;
-            dfs(i + 1, info, ryan, n - count);
+            dfs(i + 1, info, ryan, remainingArrows - count);
             // Backtracking: reset the arrow count for this target
             ryan[i] = 0;
         }
