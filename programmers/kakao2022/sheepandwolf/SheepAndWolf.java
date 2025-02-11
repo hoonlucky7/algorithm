@@ -35,6 +35,11 @@ DFS 탐색:
 각 단계마다 “양의 수가 늑대보다 많아야 한다”는 조건을 체크하여 유효한 경로만 탐색합니다.
 최대 양 업데이트: 모든 가능한 경로를 탐색하면서 모을 수 있는 최대 양을 찾아 반환합니다.
 
+2 ≤ info의 길이 ≤ 17
+N = info의 길이
+시간 복잡도 : O(2^N)
+2^17 = 131,072
+
 [Solution] : Using Brute-force Search
 
 Graph Construction: Store the children connected to each node using the given edge information.
