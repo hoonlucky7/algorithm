@@ -1,5 +1,3 @@
-package org.example.programmers.kakao2022.kbaseprimecounter;
-
 /*
 문제 2 - k 진수에서 소수의 개수 구하기
 

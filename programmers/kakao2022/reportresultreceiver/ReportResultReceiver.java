@@ -1,5 +1,3 @@
-package org.example.programmers.kakao2022.reportresultreceiver;
-
 /*
 2022 카카오 신입 공채 1차 온라인 코딩테스트
 문제 1 - 신고 결과 받기

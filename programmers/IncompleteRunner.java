@@ -30,8 +30,6 @@ participant	completion	return
 
 
 */
-package org.example.programmers;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
