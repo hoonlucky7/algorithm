@@ -1,12 +1,20 @@
 // 파괴되지 않은 건물
 // https://school.programmers.co.kr/learn/courses/30/lessons/92344
-// brute force : 주어진 것을 이중 반복문으로 계산 
+
+// 문제요약
+// N x M 크기의 게임 맵에 건물이 있고, 건물은 내구도를 가짐.
+// 적의 공격(type 1)과 아군의 회복(type 2) 스킬이 주어짐. 스킬은 직사각형 범위에 적용.
+// 공격은 내구도를 감소, 회복은 내구도를 증가.
+// 내구도가 0 이하가 되면 건물은 파괴. 회복으로 1 이상이 되면 복구.
+// 모든 스킬 적용 후 파괴되지 않은 건물 개수를 구하라.
+
+// [solution 1] 완전탐색(brute force) : 주어진 것을 이중 반복문으로 계산 
 // 행의 길이 : N
 // 열의 길이 : M
 // skill행의 길이 : K
 // 시간 복잡도 : O(K * N * M)
 
-// [solution 2]구간합으로 시간 복잡도 개선
+// [solution 2]구간합(Prefix Sum)으로 시간 복잡도 개선
 
 // 시작점 추가:
 // (r₁, c₁) 위치에 +n을 더합니다.
@@ -87,10 +95,7 @@ public class BuildingUndamaged {
         int n = board.length;
         int m = board[0].length;
 
-        // Create a difference array of size (n+1) x (m+1) to cover the range of the board
-        int[][] diff = new int[n + 1][m + 1];
 
-        // Iterate through the skill array and record the effects on the difference array.
         for (int[] s : skill) {
             int type = s[0];
             int r1 = s[1];
@@ -102,6 +107,7 @@ public class BuildingUndamaged {
             // type 1 : attack -> durability decreases, type 2 : heal -> durability increases
             int effect = (type == 1 ? -degree : degree);
 
+            // (r₁, c₁) 위치에 +n을 더합니다.
             diff[r1][c1] += effect;
             // Cell immediately after the right boundary
             diff[r1][c2 + 1] -= effect;

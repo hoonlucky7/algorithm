@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>1차원 누적합 (Diff Array) 예시</title>
+  <style>
+    /* 다크 모드 스타일 */
+    body {
+      background-color: #121212;
+      color: #E0E0E0;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+    .explanation {
+      margin-bottom: 20px;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    .container {
+      margin-bottom: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 5px;
+      background-color: #1E1E1E;
+    }
+    td {
+      border: 1px solid #555;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      vertical-align: middle;
+      color: #E0E0E0;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 1em;
+      background-color: #333;
+      color: #E0E0E0;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>1차원 누적합 (Diff Array) 예시 (다크 모드)</h1>
+  <div class="explanation" id="explanation">
+    Next Step 버튼을 눌러 애니메이션을 시작하세요.
+  </div>
+  <div class="container" id="animationArea">
+    <!-- 단계별 배열 상태가 표시됩니다. -->
+  </div>
+  <button id="nextButton">Next Step</button>
+
+  <script>
+    // 원본 배열
+    const original = [1, 2, 4, 8, 9];
+    // diff 배열: 원본 배열과 동일한 길이로 0으로 초기화
+    const diff = Array(original.length).fill(0);
+    let finalArray = [];
+    
+    let currentStep = 0;
+    const explanationDiv = document.getElementById('explanation');
+    const animationArea = document.getElementById('animationArea');
+    const nextButton = document.getElementById('nextButton');
+    
+    // 1차원 배열을 테이블 형식으로 표시하는 헬퍼 함수
+    function arrayToTableHTML(arr, title = "") {
+      let html = '<div class="container">';
+      if (title) {
+        html += `<div><strong>${title}</strong></div>`;
+      }
+      html += '<table><tr>';
+      arr.forEach((value) => {
+        html += `<td>${value}</td>`;
+      });
+      html += '</tr></table></div>';
+      return html;
+    }
+    
+    // 단계별 애니메이션 함수들
+    const steps = [
+      // [0] 초기 상태: 원본 배열과 diff 배열(모두 0)
+      function step0() {
+        explanationDiv.textContent = "초기 상태: 원본 배열과 diff 배열 (모두 0)입니다.";
+        const htmlParts = [];
+        htmlParts.push(arrayToTableHTML(original, "원본 배열 [1, 2, 4, 8, 9]"));
+        htmlParts.push(arrayToTableHTML(diff, "초기 diff 배열 [0, 0, 0, 0, 0]"));
+        animationArea.innerHTML = htmlParts.join("");
+      },
+      // [1] 구간 업데이트: 인덱스 0부터 3까지 -2 적용
+      function step1() {
+        explanationDiv.textContent = "구간 업데이트: 인덱스 0부터 3까지 -2 적용";
+        // 구간 [0, 3]에 -2 적용 → diff[0]에 -2, diff[3+1] (인덱스 4)에 +2 적용
+        diff[0] += -2;
+        if (3 + 1 < diff.length) {
+          diff[3 + 1] += 2;
+        }
+        animationArea.innerHTML = arrayToTableHTML(diff, "업데이트 후 diff 배열");
+      },
+      // [2] 누적합 계산: diff 배열을 앞에서부터 누적합
+      function step2() {
+        explanationDiv.textContent = "누적합 계산: diff 배열을 앞에서부터 누적합합니다.";
+        for (let i = 1; i < diff.length; i++) {
+          diff[i] += diff[i - 1];
+        }
+        animationArea.innerHTML = arrayToTableHTML(diff, "누적합 결과: diff 배열");
+      },
+      // [3] 최종 배열 계산: 원본 배열에 누적합 diff 값을 더함
+      function step3() {
+        explanationDiv.textContent = "최종 배열 계산: 원본 배열에 누적합 diff 배열을 더합니다.";
+        finalArray = original.map((val, idx) => val + diff[idx]);
+        animationArea.innerHTML = arrayToTableHTML(finalArray, "최종 배열");
+      }
+    ];
+    
+    nextButton.addEventListener('click', () => {
+      if (currentStep < steps.length) {
+        steps[currentStep]();
+        currentStep++;
+      } else {
+        explanationDiv.textContent = "모든 단계가 완료되었습니다.";
+      }
+    });
+    
+    // 페이지 로드 시 초기 단계 표시
+    steps[0]();
+    currentStep = 1;
+  </script>
+</body>
+</html>

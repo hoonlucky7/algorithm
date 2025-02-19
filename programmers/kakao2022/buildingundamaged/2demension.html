@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>2차원 누적합 (Diff Array)</title>
+  <style>
+    /* 다크 모드 스타일 */
+    body {
+      background-color: #121212;
+      color: #E0E0E0;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .table-container {
+      margin-bottom: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 5px;
+      background-color: #1E1E1E;
+    }
+    td {
+      border: 1px solid #555;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      vertical-align: middle;
+      color: #E0E0E0;
+    }
+    .explanation {
+      margin-bottom: 20px;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 1em;
+      background-color: #333;
+      color: #E0E0E0;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>2차원 누적합 (Diff Array) 예시 (다크 모드)</h1>
+  <div class="explanation" id="explanation">
+    Next Step 버튼을 눌러 애니메이션을 시작하세요.
+  </div>
+  <div class="container" id="animationArea">
+    <!-- 단계별 board 및 diff 배열이 표시됩니다. -->
+  </div>
+  <button id="nextButton">Next Step</button>
+
+  <script>
+    // 원본 board (3x3)
+    const originalBoard = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9]
+    ];
+    // diff 배열: 원본 board보다 행, 열이 각각 1개씩 많은 4x4 배열 (0으로 초기화)
+    const diff = Array.from({ length: originalBoard.length + 1 }, () => Array(originalBoard[0].length + 1).fill(0));
+
+    // 스킬 목록: (r1, c1, r2, c2, delta) 형식
+    const skills = [
+      { r1: 1, c1: 1, r2: 2, c2: 2, delta: -4 },  // (1,1)부터 (2,2)까지 -4 적용
+      { r1: 0, c1: 0, r2: 1, c2: 1, delta: -2 },  // (0,0)부터 (1,1)까지 -2 적용
+      { r1: 2, c1: 0, r2: 2, c2: 0, delta: 100 }   // (2,0)부터 (2,0)까지 +100 적용
+    ];
+
+    let currentStep = 0;
+    const explanationDiv = document.getElementById('explanation');
+    const animationArea = document.getElementById('animationArea');
+    const nextButton = document.getElementById('nextButton');
+
+    // 헬퍼: 2차원 배열(매트릭스)을 HTML 테이블로 변환
+    function matrixToTableHTML(matrix, title = "") {
+      let html = '<div class="table-container">';
+      if(title) html += `<div><strong>${title}</strong></div>`;
+      html += '<table>';
+      for (let row of matrix) {
+        html += '<tr>';
+        for (let cell of row) {
+          html += `<td>${cell}</td>`;
+        }
+        html += '</tr>';
+      }
+      html += '</table></div>';
+      return html;
+    }
+
+    // 단계별 애니메이션 함수들
+    const steps = [
+      // [0] 초기 상태: 원본 board와 diff 배열(모두 0)
+      function step0() {
+        explanationDiv.textContent = "초기 상태: 원본 board와 diff 배열 (모두 0)입니다.";
+        const tables = [];
+        tables.push(matrixToTableHTML(originalBoard, "원본 board (3×3)"));
+        tables.push(matrixToTableHTML(diff, "초기 diff 배열 (4×4)"));
+        animationArea.innerHTML = tables.join('');
+      },
+      // [1] Skill 1 적용: (r1:1, c1:1)부터 (r2:2, c2:2)까지 -4 적용
+      function step1() {
+        explanationDiv.textContent = "Skill 1: (1,1)부터 (2,2)까지 -4 적용";
+        const { r1, c1, r2, c2, delta } = skills[0];
+        diff[r1][c1] += delta;
+        diff[r1][c2 + 1] -= delta;
+        diff[r2 + 1][c1] -= delta;
+        diff[r2 + 1][c2 + 1] += delta;
+        animationArea.innerHTML = matrixToTableHTML(diff, "diff 배열 (Skill 1 적용 후)");
+      },
+      // [2] Skill 2 적용: (r1:0, c1:0)부터 (r2:1, c2:1)까지 -2 적용
+      function step2() {
+        explanationDiv.textContent = "Skill 2: (0,0)부터 (1,1)까지 -2 적용";
+        const { r1, c1, r2, c2, delta } = skills[1];
+        diff[r1][c1] += delta;
+        diff[r1][c2 + 1] -= delta;
+        diff[r2 + 1][c1] -= delta;
+        diff[r2 + 1][c2 + 1] += delta;
+        animationArea.innerHTML = matrixToTableHTML(diff, "diff 배열 (Skill 2 적용 후)");
+      },
+      // [3] Skill 3 적용: (r1:2, c1:0)부터 (r2:2, c2:0)까지 +100 적용
+      function step3() {
+        explanationDiv.textContent = "Skill 3: (2,0)부터 (2,0)까지 +100 적용";
+        const { r1, c1, r2, c2, delta } = skills[2];
+        diff[r1][c1] += delta;
+        diff[r1][c2 + 1] -= delta;
+        diff[r2 + 1][c1] -= delta;
+        diff[r2 + 1][c2 + 1] += delta;
+        animationArea.innerHTML = matrixToTableHTML(diff, "diff 배열 (모든 스킬 적용 후)");
+      },
+      // [4] 세로 누적합: 위에서 아래로 각 열에 대해 누적합 계산
+      function step4() {
+        explanationDiv.textContent = "세로 누적합: 위에서 아래로 각 열의 누적합을 계산합니다.";
+        for (let i = 1; i < diff.length; i++) {
+          for (let j = 0; j < diff[0].length; j++) {
+            diff[i][j] += diff[i - 1][j];
+          }
+        }
+        animationArea.innerHTML = matrixToTableHTML(diff, "diff 배열 (세로 누적합 후)");
+      },
+      // [5] 가로 누적합: 왼쪽에서 오른쪽으로 각 행에 대해 누적합 계산
+      function step5() {
+        explanationDiv.textContent = "가로 누적합: 왼쪽에서 오른쪽으로 각 행의 누적합을 계산합니다.";
+        for (let i = 0; i < diff.length; i++) {
+          for (let j = 1; j < diff[0].length; j++) {
+            diff[i][j] += diff[i][j - 1];
+          }
+        }
+        animationArea.innerHTML = matrixToTableHTML(diff, "diff 배열 (세로+가로 누적합 후)");
+      },
+      // [6] 최종 board 계산: 원본 board에 누적합 diff 배열(상위 3×3)을 더함
+      function step6() {
+        explanationDiv.textContent = "최종 board 계산: 원본 board에 누적합 diff 배열(상위 3×3)을 더합니다.";
+        const finalBoard = [];
+        for (let i = 0; i < originalBoard.length; i++) {
+          finalBoard[i] = [];
+          for (let j = 0; j < originalBoard[0].length; j++) {
+            finalBoard[i][j] = originalBoard[i][j] + diff[i][j];
+          }
+        }
+        animationArea.innerHTML = matrixToTableHTML(finalBoard, "최종 board");
+        // 최종 board를 전역 변수에 저장 (나중에 결과 표시용)
+        window.finalBoard = finalBoard;
+      },
+      // [7] 0보다 큰 건물(정수) 개수 계산
+      function step7() {
+        explanationDiv.textContent = "0보다 큰 정수(건물)의 개수를 계산합니다.";
+        let count = 0;
+        const board = window.finalBoard;
+        for (let i = 0; i < board.length; i++) {
+          for (let j = 0; j < board[0].length; j++) {
+            if (board[i][j] > 0) count++;
+          }
+        }
+        animationArea.innerHTML = `<div style="font-size:1.2em; font-weight:bold;">0보다 큰 건물의 개수: ${count}</div>`;
+      }
+    ];
+
+    nextButton.addEventListener('click', () => {
+      if (currentStep < steps.length) {
+        steps[currentStep]();
+        currentStep++;
+      } else {
+        explanationDiv.textContent = "애니메이션이 모두 완료되었습니다.";
+      }
+    });
+
+    // 페이지 로드 시 초기 단계 표시
+    steps[0]();
+    currentStep = 1;
+  </script>
+</body>
+</html>
