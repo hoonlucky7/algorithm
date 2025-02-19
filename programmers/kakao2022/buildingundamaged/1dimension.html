@@ -50,7 +50,7 @@
   </style>
 </head>
 <body>
-  <h1>1차원 누적합 (Diff Array) 예시 (다크 모드)</h1>
+  <h1>1차원 누적합 (Diff Array) 예시</h1>
   <div class="explanation" id="explanation">
     Next Step 버튼을 눌러 애니메이션을 시작하세요.
   </div>
@@ -62,8 +62,8 @@
   <script>
     // 원본 배열
     const original = [1, 2, 4, 8, 9];
-    // diff 배열: 원본 배열과 동일한 길이로 0으로 초기화
-    const diff = Array(original.length).fill(0);
+    // diff 배열: 원본 배열보다 길이 1 크게 0으로 초기화
+    const diff = Array(original.length + 1).fill(0);
     let finalArray = [];
     
     let currentStep = 0;
@@ -92,7 +92,7 @@
         explanationDiv.textContent = "초기 상태: 원본 배열과 diff 배열 (모두 0)입니다.";
         const htmlParts = [];
         htmlParts.push(arrayToTableHTML(original, "원본 배열 [1, 2, 4, 8, 9]"));
-        htmlParts.push(arrayToTableHTML(diff, "초기 diff 배열 [0, 0, 0, 0, 0]"));
+        htmlParts.push(arrayToTableHTML(diff, "초기 diff 배열 [0, 0, 0, 0, 0, 0]"));
         animationArea.innerHTML = htmlParts.join("");
       },
       // [1] 구간 업데이트: 인덱스 0부터 3까지 -2 적용
@@ -100,9 +100,8 @@
         explanationDiv.textContent = "구간 업데이트: 인덱스 0부터 3까지 -2 적용";
         // 구간 [0, 3]에 -2 적용 → diff[0]에 -2, diff[3+1] (인덱스 4)에 +2 적용
         diff[0] += -2;
-        if (3 + 1 < diff.length) {
-          diff[3 + 1] += 2;
-        }
+        diff[3 + 1] += 2;
+
         animationArea.innerHTML = arrayToTableHTML(diff, "업데이트 후 diff 배열");
       },
       // [2] 누적합 계산: diff 배열을 앞에서부터 누적합
