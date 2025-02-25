@@ -48,101 +48,144 @@
 // 주어진 제약 조건(5×5 보드)에서는 충분히 실행 가능한 수준입니다.
 
 class DisappearingPlatform {
-    int[] dr = {-1, 1, 0, 0};  // 상하좌우 이동을 위한 행 변화량
-    int[] dc = {0, 0, -1, 1};  // 상하좌우 이동을 위한 열 변화량
-    int n, m;  // 보드의 크기
-    
+
+    // Delta values for up, down, left, and right movements (row, column)
+    private static final int[] DELTA_ROW = {-1, 1, 0, 0};
+    private static final int[] DELTA_COL = {0, 0, -1, 1};
+
+    private int boardHeight;  // Board height (number of rows)
+    private int boardWidth;   // Board width (number of columns)
+
+    /**
+     * Calculates the optimal number of moves for the disappearing platform game.
+     *
+     * @param board Game board (1: platform exists, 0: platform doesn't exist)
+     * @param aloc  Initial position of player A [row, column]
+     * @param bloc  Initial position of player B [row, column]
+     * @return The minimum number of moves for player A to win. If A cannot win, the maximum number of moves (among losing cases).
+     */
     public int solution(int[][] board, int[] aloc, int[] bloc) {
-        n = board.length;
-        m = board[0].length;
-        
-        // 게임 실행 결과를 반환받음
-        Result result = play(board, aloc[0], aloc[1], bloc[0], bloc[1], 0, true);
-        return result.count;
+        this.boardHeight = board.length;
+        this.boardWidth = board[0].length;
+
+        // Start the game (A's turn first)
+        GameResult result = playGame(board, aloc[0], aloc[1], bloc[0], bloc[1], 0, true);
+        return result.moveCount;
     }
-    
-    // 게임의 결과를 저장하는 클래스
-    class Result {
-        boolean win;  // 이길 수 있는지 여부
-        int count;    // 이동 횟수
-        
-        Result(boolean win, int count) {
-            this.win = win;
-            this.count = count;
+
+    /**
+     * Recursively plays the game and finds the optimal result.
+     *
+     * @param board      Current game board state
+     * @param aRow       Current row position of player A
+     * @param aCol       Current column position of player A
+     * @param bRow       Current row position of player B
+     * @param bCol       Current column position of player B
+     * @param moveCount  Current number of moves (depth)
+     * @param isATurn    Whether it's A's turn (true: A's turn, false: B's turn)
+     * @return Game result (whether A can win and the number of moves)
+     */
+    private GameResult playGame(int[][] board, int aRow, int aCol, int bRow, int bCol, int moveCount, boolean isATurn) {
+        // 1. Base Case
+
+        // Current player's position
+        int currentRow = isATurn ? aRow : bRow;
+        int currentCol = isATurn ? aCol : bCol;
+
+        // 1.1. If the current position is out of bounds or there is no platform -> current player loses
+        if (isOutOfBounds(currentRow, currentCol) || board[currentRow][currentCol] == 0) {
+            return new GameResult(false, moveCount); // (Lose, current move count)
         }
-    }
-    
-    private Result play(int[][] board, int ar, int ac, int br, int bc, int depth, boolean isATurn) {
-        // 현재 차례인 플레이어의 위치
-        int curR = isATurn ? ar : br;
-        int curC = isATurn ? ac : bc;
-        
-        // 현재 위치의 발판이 이미 없거나 게임판을 벗어난 경우
-        if (curR < 0 || curR >= n || curC < 0 || curC >= m || board[curR][curC] == 0) {
-            return new Result(false, depth);
-        }
-        
-        // 이동 가능한 방향이 있는지 확인
+
+        // 1.2. If the current player has no more moves -> current player loses
         boolean canMove = false;
         for (int i = 0; i < 4; i++) {
-            int nr = curR + dr[i];
-            int nc = curC + dc[i];
-            
-            if (nr < 0 || nr >= n || nc < 0 || nc >= m || board[nr][nc] == 0) continue;
-            canMove = true;
-            break;
+            int nextRow = currentRow + DELTA_ROW[i];
+            int nextCol = currentCol + DELTA_COL[i];
+            if (!isOutOfBounds(nextRow, nextCol) && board[nextRow][nextCol] == 1) {
+                canMove = true; // Can move
+                break;
+            }
         }
-        
-        // 이동할 수 없는 경우
         if (!canMove) {
-            return new Result(false, depth);
+            return new GameResult(false, moveCount); // (Lose, current move count)
         }
-        
-        // 최적의 결과를 저장할 변수들
-        boolean canWin = false;
-        int minCount = Integer.MAX_VALUE;  // 이기는 경우 중 최소 이동 횟수
-        int maxCount = 0;                  // 지는 경우 중 최대 이동 횟수
-        
-        // 현재 위치의 발판을 임시로 제거
-        board[curR][curC] = 0;
-        
-        // 4방향으로 이동해보며 최적의 결과 탐색
+
+        // 2. Recursive Step
+
+        // 2.1. Temporarily remove the platform of the current player (assuming it's stepped on)
+        board[currentRow][currentCol] = 0;
+
+        // 2.2. Recursively call for all possible moves
+        boolean canWin = false;       // Whether the current player can win in this turn
+        int minMovesToWin = Integer.MAX_VALUE; // Minimum number of moves to win
+        int maxMovesToLose = 0;     // Maximum number of moves to lose
+
+
         for (int i = 0; i < 4; i++) {
-            int nr = curR + dr[i];
-            int nc = curC + dc[i];
-            
-            if (nr < 0 || nr >= n || nc < 0 || nc >= m || board[nr][nc] == 0) continue;
-            
-            Result result;
+            int nextRow = currentRow + DELTA_ROW[i];
+            int nextCol = currentCol + DELTA_COL[i];
+
+            // Skip if the position is invalid
+            if (isOutOfBounds(nextRow, nextCol) || board[nextRow][nextCol] == 0) {
+                continue;
+            }
+
+            GameResult nextResult; // Result of the next turn
             if (isATurn) {
-                result = play(board, nr, nc, br, bc, depth + 1, false);
+                // If it's A's turn, pass to B's turn
+                nextResult = playGame(board, nextRow, nextCol, bRow, bCol, moveCount + 1, false);
             } else {
-                result = play(board, ar, ac, nr, nc, depth + 1, true);
+                // If it's B's turn, pass to A's turn
+                nextResult = playGame(board, aRow, aCol, nextRow, nextCol, moveCount + 1, true);
             }
-            
-            // 이기는 경우
-            if (!result.win) {
+
+            // 2.3. Update the optimal result based on the result of the recursive call
+
+            if (!nextResult.canWin) { // If the opponent loses in the next turn -> current player can win
                 canWin = true;
-                minCount = Math.min(minCount, result.count);
-            }
-            // 지는 경우
-            else {
-                maxCount = Math.max(maxCount, result.count);
+                minMovesToWin = Math.min(minMovesToWin, nextResult.moveCount); // Update minimum move count
+            } else { // If the opponent wins in the next turn -> current player loses
+                maxMovesToLose = Math.max(maxMovesToLose, nextResult.moveCount); // Update maximum move count
             }
         }
-        
-        // 발판 복구
-        board[curR][curC] = 1;
-        
-        // 결과 반환
+        // 2.4. Restore the platform (backtracking)
+        board[currentRow][currentCol] = 1;
+
+        // 3. Return result
+
+        // 3.1. If can win -> (Win, minimum move count)
         if (canWin) {
-            return new Result(true, minCount);
-        } else {
-            return new Result(false, maxCount);
+            return new GameResult(true, minMovesToWin);
+        } else { // 3.2. If can't win -> (Lose, maximum move count)
+            return new GameResult(false, maxMovesToLose);
         }
     }
 
-    public static void main(String[] args) {
+    /**
+     * Checks if the given position is within the board boundaries.
+     *
+     * @param row Row position
+     * @param col Column position
+     * @return True if within the board, false otherwise
+     */
+    private boolean isOutOfBounds(int row, int col) {
+        return row < 0 || row >= boardHeight || col < 0 || col >= boardWidth;
+    }
+
+    /**
+     * Inner class to store the game result.
+     */
+    private static class GameResult {
+        boolean canWin;    // Whether A can win
+        int moveCount;     // Number of moves
+
+        GameResult(boolean canWin, int moveCount) {
+            this.canWin = canWin;
+            this.moveCount = moveCount;
+        }
+    }
+     public static void main(String[] args) {
         DisappearingPlatform game = new DisappearingPlatform();
 
         // Test Case 1
@@ -151,7 +194,7 @@ class DisappearingPlatform {
         int[] bloc1 = {1, 2};
         int expected1 = 5;
         int actual1 = game.solution(board1, aloc1, bloc1);
-        
+
         System.out.println("Test Case 1:");
         System.out.println("  Expected: " + expected1 + ", Actual: " + actual1);
         System.out.println("  Result: " + (actual1 == expected1 ? "Success" : "Failure"));
@@ -162,7 +205,7 @@ class DisappearingPlatform {
         int[] bloc2 = {1, 2};
         int expected2 = 4;
         int actual2 = game.solution(board2, aloc2, bloc2);
-        
+
         System.out.println("Test Case 2:");
         System.out.println("  Expected: " + expected2 + ", Actual: " + actual2);
         System.out.println("  Result: " + (actual2 == expected2 ? "Success" : "Failure"));
@@ -173,18 +216,18 @@ class DisappearingPlatform {
         int[] bloc3 = {0, 4};
         int expected3 = 4;
         int actual3 = game.solution(board3, aloc3, bloc3);
-        
+
         System.out.println("Test Case 3:");
         System.out.println("  Expected: " + expected3 + ", Actual: " + actual3);
         System.out.println("  Result: " + (actual3 == expected3 ? "Success" : "Failure"));
 
         // Test Case 4
         int[][] board4 = {{1}};
-        int[] aloc4 = {1, 0};
-        int[] bloc4 = {1, 2};
+        int[] aloc4 = {0, 0}; // Modified aloc4
+        int[] bloc4 = {0, 0}; // Modified bloc4
         int expected4 = 0;
         int actual4 = game.solution(board4, aloc4, bloc4);
-        
+
         System.out.println("Test Case 4:");
         System.out.println("  Expected: " + expected4 + ", Actual: " + actual4);
         System.out.println("  Result: " + (actual4 == expected4 ? "Success" : "Failure"));
