@@ -3,8 +3,12 @@
 // [자료구조]
 
 // 그래프 표현 (graph):
-// ArrayList<ArrayList<Integer>>를 사용하여 인접 리스트 형태로 그래프를 표현
+// ArrayList<ArrayList<Integer>>를 사용하여 
+// 인접 리스트 형태로 그래프를 표현
 // 각 노드마다 연결된 이웃 노드들의 리스트를 저장
+
+// 트리를 그래프 이용해서 초기화 : 
+// https://www.youtube.com/watch?v=sF7CULfofoU&t=120s
 
 // 노드 값 저장 (nodeValues):
 // 정수 배열을 사용하여 각 노드의 값을 저장
@@ -12,7 +16,8 @@
 // 0 이상의 값은 계산 완료된 노드의 값
 
 // [Solution] : Minimax
-// 이 코드는 게임 이론에서 사용되는 미니맥스(Minimax) 알고리즘을 트리에 적용한 것입니다:
+// 게임 이론에서 사용되는 미니맥스(Minimax) 알고리즘을 트리에 
+// 적용한 것입니다:
 // 깊이 우선 탐색(DFS):
 // 트리를 깊이 우선으로 탐색하며 각 노드의 값을 계산
 // 부모 노드 정보를 추적하여 무방향 그래프에서 사이클을 방지
@@ -119,93 +124,13 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class MinimaxTree {
-    // Graph represented as adjacency lists
-    private static ArrayList<ArrayList<Integer>> graph;
-    // Array to store the calculated values for each node
-    private static int[] nodeValues;
-
-    /**
-     * Depth-first search to calculate minimax values for each node
-     * @param currentNode The current node being processed
-     * @param parentNode The parent of the current node
-     * @param depth The current depth in the tree
-     * @return The calculated minimax value for the current node
-     */
-    private static int dfs(int currentNode, int parentNode, int depth) {
-        // If the node's value is already calculated, return it
-        if (nodeValues[currentNode] >= 0) return nodeValues[currentNode];
-
-        // Max player's turn (even depth)
-        if (depth % 2 == 0) {
-            int bestValue = 0;
-            for (int child : graph.get(currentNode)) {
-                if (child != parentNode) {
-                    // Find maximum value among children
-                    bestValue = Math.max(bestValue, dfs(child, currentNode, depth + 1));
-                }
-            }
-            return nodeValues[currentNode] = bestValue;
-        } else {
-            // Min player's turn (odd depth)
-            int bestValue = Integer.MAX_VALUE;
-            for (int child : graph.get(currentNode)) {
-                if (child != parentNode) {
-                    // Find minimum value among children
-                    bestValue = Math.min(bestValue, dfs(child, currentNode, depth + 1));
-                }
-            }
-            return nodeValues[currentNode] = bestValue;
-        }
-    }
+    
 
     public static void main(String[] args) throws FileNotFoundException{
         Scanner scanner = new Scanner(new File("./basic/minimaxTree/inputMinimaxTree.txt"));
         //Scanner scanner = new Scanner(System.in);
         
-        // Read the number of nodes and root node
-        int N = scanner.nextInt();  // Number of nodes
-        int R = scanner.nextInt();  // Root node
         
-        // Initialize node values array with -1 (unprocessed)
-        nodeValues = new int[N + 1];
-        Arrays.fill(nodeValues, -1);
-        
-        // Initialize the graph
-        graph = new ArrayList<>(N + 1);
-        for (int i = 0; i <= N; i++) {
-            graph.add(new ArrayList<>());
-        }
-        
-        // Read edges (N-1 edges for a tree)
-        for (int i = 1; i < N; i++) {
-            int u = scanner.nextInt();
-            int v = scanner.nextInt();
-            // Add bidirectional edges
-            graph.get(u).add(v);
-            graph.get(v).add(u);
-        }
-        
-        // Read the number of leaf nodes with predefined values
-        int L = scanner.nextInt();
-        
-        // Set values for leaf nodes
-        for (int i = 0; i < L; i++) {
-            int leafId = scanner.nextInt();
-            int leafValue = scanner.nextInt();
-            nodeValues[leafId] = leafValue;
-        }
-        
-        // Start DFS from root node to calculate all node values
-        dfs(R, 0, 0);
-        
-        // Read the number of queries
-        int Q = scanner.nextInt();
-        
-        // Process queries
-        for (int i = 0; i < Q; i++) {
-            int q = scanner.nextInt();  // Node to query
-            System.out.println(nodeValues[q]);  // Print its minimax value
-        }
         
         scanner.close();
     }
