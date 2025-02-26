@@ -1,21 +1,29 @@
 // Problem Link: https://www.acmicpc.net/problem/28472
 
-// [자료 구조]
-// Node 클래스: 각 노드를 나타내는 객체
-// id: 노드 ID
-// value: 노드의 미니맥스 값 (초기에는 0, 리프 노드는 입력 값, 내부 노드는 계산된 값)
-// children: 자식 노드 리스트
+// [자료구조]
 
-// nodes 배열: 모든 노드 객체를 저장하는 배열 (인덱스는 노드 ID)
-// graph (인접 리스트): 양방향 그래프를 나타내는 인접 리스트. graph[i]는 노드 i와 연결된 노드들의 리스트를 저장.
+// 그래프 표현 (graph):
+// ArrayList<ArrayList<Integer>>를 사용하여 인접 리스트 형태로 그래프를 표현
+// 각 노드마다 연결된 이웃 노드들의 리스트를 저장
 
-// [solution]
-// recursive function: buildTree와 minimax 함수 모두 재귀적으로 동작하여 트리 구조를 탐색하고 값을 계산.
-// Minimax: MAX 플레이어는 자신의 값을 최대화하려고 하고, 
-// MIN 플레이어는 자신의 값을 최소화하려고 한다는 가정 하에, 각 노드에서 최선의 선택을 결정.
-// 트리 탐색: buildTree는 양방향 그래프를 트리 형태로 변환하고, 
-// minimax는 이 트리를 깊이 우선 탐색(DFS) 방식으로 탐색하면서 값을 계산.
-// 값 저장: 계산된 미니맥스 값은 각 노드의 value 필드에 저장되어, 쿼리 처리 시 재계산 없이 바로 사용할 수 있음.
+// 노드 값 저장 (nodeValues):
+// 정수 배열을 사용하여 각 노드의 값을 저장
+// 초기값 -1은 아직 계산되지 않은 노드를 의미
+// 0 이상의 값은 계산 완료된 노드의 값
+
+// [Solution] : Minimax
+// 이 코드는 게임 이론에서 사용되는 미니맥스(Minimax) 알고리즘을 트리에 적용한 것입니다:
+// 깊이 우선 탐색(DFS):
+// 트리를 깊이 우선으로 탐색하며 각 노드의 값을 계산
+// 부모 노드 정보를 추적하여 무방향 그래프에서 사이클을 방지
+
+// 교대 전략(Alternating Strategy):
+// 짝수 깊이(depth % 2 == 0): MAX 노드, 자식 중 최대값을 선택
+// 홀수 깊이(depth % 2 == 1): MIN 노드, 자식 중 최소값을 선택
+
+// 메모이제이션(Memoization):
+// 한 번 계산한 노드 값은 저장해두고 재사용
+// nodeValues[currentNode] >= 0 조건으로 이미 계산된 값을 확인
 
 
 // 미니맥스 알고리즘 개요
@@ -104,116 +112,101 @@
 
 // Output Format:
 
-// For each query `q_i`, output a single line containing the calculated Minimax value for that node.    
+// For each query `q_i`, output a single line containing the calculated Minimax value for that node.   
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class MinimaxTree {
-    static class Node {
-        int id;
-        int value;
-        List<Node> children;
+    // Graph represented as adjacency lists
+    private static ArrayList<ArrayList<Integer>> graph;
+    // Array to store the calculated values for each node
+    private static int[] nodeValues;
 
-        Node(int id) {
-            this.id = id;
-            this.value = 0; // Initialize non-leaf nodes to 0, leaf node values are set later.
-            this.children = new ArrayList<>();
-        }
-    }
+    /**
+     * Depth-first search to calculate minimax values for each node
+     * @param currentNode The current node being processed
+     * @param parentNode The parent of the current node
+     * @param depth The current depth in the tree
+     * @return The calculated minimax value for the current node
+     */
+    private static int dfs(int currentNode, int parentNode, int depth) {
+        // If the node's value is already calculated, return it
+        if (nodeValues[currentNode] >= 0) return nodeValues[currentNode];
 
-    private Node[] nodes;
-    private List<Integer>[] graph; // Adjacency list to represent the undirected tree.
-
-    // Minimax algorithm to calculate the value of a node.
-    private int minimax(Node node, boolean isMax) {
-        // If it's a leaf node, return its value.
-        if (node.children.isEmpty()) {
-            return node.value;
-        }
-
-        int bestValue;
-        if (isMax) { // Maximizing player
-            bestValue = Integer.MIN_VALUE;
-            for (Node childNode : nodes[node.id].children) {
-                bestValue = Math.max(bestValue, minimax(childNode, !isMax));
+        // Max player's turn (even depth)
+        if (depth % 2 == 0) {
+            int bestValue = 0;
+            for (int child : graph.get(currentNode)) {
+                if (child != parentNode) {
+                    // Find maximum value among children
+                    bestValue = Math.max(bestValue, dfs(child, currentNode, depth + 1));
+                }
             }
-        } else { // Minimizing player
-            bestValue = Integer.MAX_VALUE;
-            for (Node childNode : nodes[node.id].children) {
-                bestValue = Math.min(bestValue, minimax(childNode, !isMax));
+            return nodeValues[currentNode] = bestValue;
+        } else {
+            // Min player's turn (odd depth)
+            int bestValue = Integer.MAX_VALUE;
+            for (int child : graph.get(currentNode)) {
+                if (child != parentNode) {
+                    // Find minimum value among children
+                    bestValue = Math.min(bestValue, dfs(child, currentNode, depth + 1));
+                }
             }
-        }
-        nodes[node.id].value = bestValue; // Store the calculated value in the node.
-        return bestValue;
-    }
-
-    //  Builds the tree structure from the undirected graph representation.
-    void buildTree(int current, int parent) {
-        for (int neighbor : graph[current]) {
-            if (neighbor == parent) continue; // Avoid going back to the parent.
-
-            // Add the neighbor as a child of the current node.
-            nodes[current].children.add(nodes[neighbor]);
-            // Recursively build the subtree rooted at the neighbor.
-            buildTree(neighbor, current);
+            return nodeValues[currentNode] = bestValue;
         }
     }
 
-    public void solution() throws FileNotFoundException {
-        //Scanner sc = new Scanner(new File("./basic/minimaxTree/inputMinimaxTree.txt"));  // For local testing
-        Scanner sc = new Scanner(System.in);
-
-        // Input: Number of nodes (N) and root node (R).
-        int N = sc.nextInt();
-        int R = sc.nextInt();
-
-        // Initialize the nodes array and the adjacency list (node IDs start from 1).
-        nodes = new Node[N + 1];
-        graph = new ArrayList[N + 1];
-        for (int i = 1; i <= N; i++) {
-            nodes[i] = new Node(i);
-            graph[i] = new ArrayList<>();
+    public static void main(String[] args) throws FileNotFoundException{
+        Scanner scanner = new Scanner(new File("./basic/minimaxTree/inputMinimaxTree.txt"));
+        //Scanner scanner = new Scanner(System.in);
+        
+        // Read the number of nodes and root node
+        int N = scanner.nextInt();  // Number of nodes
+        int R = scanner.nextInt();  // Root node
+        
+        // Initialize node values array with -1 (unprocessed)
+        nodeValues = new int[N + 1];
+        Arrays.fill(nodeValues, -1);
+        
+        // Initialize the graph
+        graph = new ArrayList<>(N + 1);
+        for (int i = 0; i <= N; i++) {
+            graph.add(new ArrayList<>());
         }
-
-        // Input: Tree edge information (endpoints u and v).
-        for (int i = 0; i < N - 1; i++) {
-            int u = sc.nextInt();
-            int v = sc.nextInt();
-            graph[u].add(v); // Add edge to the adjacency list (undirected graph).
-            graph[v].add(u);
+        
+        // Read edges (N-1 edges for a tree)
+        for (int i = 1; i < N; i++) {
+            int u = scanner.nextInt();
+            int v = scanner.nextInt();
+            // Add bidirectional edges
+            graph.get(u).add(v);
+            graph.get(v).add(u);
         }
-
-        // Build the tree structure starting from the root node.
-        buildTree(R, -1);  // -1 indicates no parent for the root.
-
-
-        // Input: Number of leaf nodes (L) and their IDs and values.
-        int L = sc.nextInt();
+        
+        // Read the number of leaf nodes with predefined values
+        int L = scanner.nextInt();
+        
+        // Set values for leaf nodes
         for (int i = 0; i < L; i++) {
-            int leafId = sc.nextInt();
-            int leafValue = sc.nextInt();
-            nodes[leafId].value = leafValue; // Assign the value to the leaf node.
+            int leafId = scanner.nextInt();
+            int leafValue = scanner.nextInt();
+            nodeValues[leafId] = leafValue;
         }
-
-        // Apply the Minimax algorithm, starting with the root node as the MAX player.
-        minimax(nodes[R], true);
-
-        // Process queries: For each query node, print its calculated Minimax value.
-        int Q = sc.nextInt();
+        
+        // Start DFS from root node to calculate all node values
+        dfs(R, 0, 0);
+        
+        // Read the number of queries
+        int Q = scanner.nextInt();
+        
+        // Process queries
         for (int i = 0; i < Q; i++) {
-            int q = sc.nextInt();
-            System.out.println(nodes[q].value);
+            int q = scanner.nextInt();  // Node to query
+            System.out.println(nodeValues[q]);  // Print its minimax value
         }
-
-        sc.close();
-    }
-
-    public static void main(String[] args) throws FileNotFoundException {
-        MinimaxTree minimaxTree = new MinimaxTree();
-        minimaxTree.solution();
+        
+        scanner.close();
     }
 }
