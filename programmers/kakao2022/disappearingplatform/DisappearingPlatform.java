@@ -47,6 +47,57 @@
 // 실제 동작 시간 복잡도는 이론적 최악의 경우보다 훨씬 낮으며, 
 // 주어진 제약 조건(5×5 보드)에서는 충분히 실행 가능한 수준입니다.
 
+// What is the Minimax Algorithm?
+
+// It's a decision-making algorithm used in turn-based games with two players.
+// One player aims to maximize their score, while the opponent aims to minimize it.
+// It assumes that each player will make the optimal move.
+
+// For each choice A makes:
+
+// Consider all of B's possible responses.
+// Assume B will make the optimal move.
+// Choose the move that gives A the highest probability of winning.
+
+// This process is repeated recursively:
+
+// If winning is possible: Try to win with the minimum number of moves.
+// If losing is inevitable: Try to survive for the maximum number of moves.
+
+// The minimax algorithm operates by assuming each player will make the best possible choice,
+// and finds the optimal move accordingly.
+
+// Time Complexity Calculation:
+// Analysis per step
+// Board size: Maximum 5x5 = 25 cells
+// Possible moves from each position: 4 directions (up, down, left, right)
+// Platform state: present (1) or absent (0)
+// Worst-case scenario
+// Each turn, a player can move in 4 directions.
+// The game can continue until all platforms disappear.
+// Each cell on the board can be visited once.
+// Recursive call analysis
+// O(4^n)
+// where n is the number of platforms (maximum 25)
+
+// Therefore, the theoretical worst-case time complexity is:
+// O(4^25)
+// Reasons why the actual execution time is much less:
+// Pruning effect
+// Many cases are excluded because they are invalid moves.
+// As platforms disappear, the number of possible moves continuously decreases.
+// Game characteristics
+// Most games end before all platforms are used.
+// Both players are often close to each other, reducing the actual search space.
+// Optimization factors
+// Movement to a cell without a platform is not allowed.
+// Moves that go out of bounds are immediately excluded.
+// Further exploration is unnecessary if the outcome (win/lose) is already determined.
+
+// The actual runtime complexity is much lower than the theoretical worst case,
+// and it is well within an executable range under the given constraints (5x5 board).
+
+
 class DisappearingPlatform {
 
     // Delta values for up, down, left, and right movements (row, column)
@@ -85,7 +136,8 @@ class DisappearingPlatform {
      * @param isATurn    Whether it's A's turn (true: A's turn, false: B's turn)
      * @return Game result (whether A can win and the number of moves)
      */
-    private GameResult playGame(int[][] board, int aRow, int aCol, int bRow, int bCol, int moveCount, boolean isATurn) {
+    private GameResult playGame(int[][] board, int aRow, int aCol, int bRow, int bCol, 
+    int moveCount, boolean isATurn) {
         // 1. Base Case
 
         // Current player's position

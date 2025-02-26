@@ -1,5 +1,35 @@
 // Problem Link: https://www.acmicpc.net/problem/28472
 
+// [자료 구조]
+// Node 클래스: 각 노드를 나타내는 객체
+// id: 노드 ID
+// value: 노드의 미니맥스 값 (초기에는 0, 리프 노드는 입력 값, 내부 노드는 계산된 값)
+// children: 자식 노드 리스트
+
+// nodes 배열: 모든 노드 객체를 저장하는 배열 (인덱스는 노드 ID)
+// graph (인접 리스트): 양방향 그래프를 나타내는 인접 리스트. graph[i]는 노드 i와 연결된 노드들의 리스트를 저장.
+
+// [solution]
+// recursive function: buildTree와 minimax 함수 모두 재귀적으로 동작하여 트리 구조를 탐색하고 값을 계산.
+// Minimax: MAX 플레이어는 자신의 값을 최대화하려고 하고, 
+// MIN 플레이어는 자신의 값을 최소화하려고 한다는 가정 하에, 각 노드에서 최선의 선택을 결정.
+// 트리 탐색: buildTree는 양방향 그래프를 트리 형태로 변환하고, 
+// minimax는 이 트리를 깊이 우선 탐색(DFS) 방식으로 탐색하면서 값을 계산.
+// 값 저장: 계산된 미니맥스 값은 각 노드의 value 필드에 저장되어, 쿼리 처리 시 재계산 없이 바로 사용할 수 있음.
+
+
+// 미니맥스 알고리즘 개요
+// 미니맥스 알고리즘은 두 명의 플레이어가 번갈아 최적의 수를 선택하는 게임에서 사용됩니다.
+// 한 플레이어는 자신의 이득(최대화)을 극대화하고, 상대는 손해(최소화)를 유도하는 방식으로 진행됩니다.
+// 결국, 전체 게임 트리를 탐색해 최종 승패를 결정짓는 핵심 전략이죠.
+// 알고리즘 동작 원리
+// 게임 트리 구성: 가능한 모든 게임 상태를 노드로 표현해 트리 구조로 만듭니다.
+// 리프 노드 평가: 게임이 종료된 상태 또는 정해진 깊이에 도달하면, 평가 함수를 통해 해당 상태의 점수를 계산합니다.
+// 재귀적 선택:
+// 최대화 플레이어: 가능한 자식 노드 중 가장 높은 평가 값을 선택합니다.
+// 최소화 플레이어: 가능한 자식 노드 중 가장 낮은 평가 값을 선택합니다.
+// 이러한 과정을 재귀적으로 수행해, 루트 노드까지 도달하면 최적의 수가 결정됩니다.
+
 // Minimax 알고리즘은 체스나 바둑, 틱택토와 같이 상대방과 번갈아가며 하는 게임에서 사용하는 알고리즘이다. 
 // 이 알고리즘에서 사용되는 Minimax 트리는 상대방의 최고의 수가 나에게 가장 최소의 영향을 끼치게 하기 위해 
 // 만든 게임트리이다. 즉, 한 사람을 기준으로 시작하는 사람이 모든 자식 노드 중 노드의 값이 큰 값을 선택하고 
@@ -121,7 +151,7 @@ public class MinimaxTree {
         return bestValue;
     }
 
-    // Builds the tree structure from the undirected graph representation.
+    //  Builds the tree structure from the undirected graph representation.
     void buildTree(int current, int parent) {
         for (int neighbor : graph[current]) {
             if (neighbor == parent) continue; // Avoid going back to the parent.
