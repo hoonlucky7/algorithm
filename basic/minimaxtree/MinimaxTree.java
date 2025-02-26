@@ -1,4 +1,5 @@
-// https://www.acmicpc.net/problem/28472
+// Problem Link: https://www.acmicpc.net/problem/28472
+
 // Minimax 알고리즘은 체스나 바둑, 틱택토와 같이 상대방과 번갈아가며 하는 게임에서 사용하는 알고리즘이다. 
 // 이 알고리즘에서 사용되는 Minimax 트리는 상대방의 최고의 수가 나에게 가장 최소의 영향을 끼치게 하기 위해 
 // 만든 게임트리이다. 즉, 한 사람을 기준으로 시작하는 사람이 모든 자식 노드 중 노드의 값이 큰 값을 선택하고 
@@ -86,89 +87,98 @@ public class MinimaxTree {
         int id;
         int value;
         List<Node> children;
-        
+
         Node(int id) {
             this.id = id;
-            this.value = 0; // 리프가 아니면 초기값은 0, 리프 노드 값은 나중에 입력으로 채워짐.
+            this.value = 0; // Initialize non-leaf nodes to 0, leaf node values are set later.
             this.children = new ArrayList<>();
         }
     }
-    private Node[] nodes; 
-    private List<Integer>[] graph;     // 입력 받은 무방향 트리의 인접 리스트
 
+    private Node[] nodes;
+    private List<Integer>[] graph; // Adjacency list to represent the undirected tree.
+
+    // Minimax algorithm to calculate the value of a node.
     private int minimax(Node node, boolean isMax) {
+        // If it's a leaf node, return its value.
         if (node.children.isEmpty()) {
             return node.value;
         }
+
         int bestValue;
-        if (isMax) {
+        if (isMax) { // Maximizing player
             bestValue = Integer.MIN_VALUE;
-            for (Node childeNode : nodes[node.id].children) {
-                bestValue = Math.max(bestValue, minimax(childeNode, !isMax));
+            for (Node childNode : nodes[node.id].children) {
+                bestValue = Math.max(bestValue, minimax(childNode, !isMax));
             }
-        } else {
+        } else { // Minimizing player
             bestValue = Integer.MAX_VALUE;
-            for (Node childeNode : nodes[node.id].children) {
-                bestValue = Math.min(bestValue, minimax(childeNode, !isMax));
+            for (Node childNode : nodes[node.id].children) {
+                bestValue = Math.min(bestValue, minimax(childNode, !isMax));
             }
         }
-        nodes[node.id].value = bestValue;
+        nodes[node.id].value = bestValue; // Store the calculated value in the node.
         return bestValue;
     }
 
+    // Builds the tree structure from the undirected graph representation.
     void buildTree(int current, int parent) {
         for (int neighbor : graph[current]) {
-            if (neighbor == parent) continue;
-            // current 노드의 자식으로 neighbor 노드를 추가
+            if (neighbor == parent) continue; // Avoid going back to the parent.
+
+            // Add the neighbor as a child of the current node.
             nodes[current].children.add(nodes[neighbor]);
+            // Recursively build the subtree rooted at the neighbor.
             buildTree(neighbor, current);
         }
     }
 
     public void solution() throws FileNotFoundException {
-        Scanner sc = new Scanner(new File("./basic/minimaxTree/input.txt"));
-        //Scanner sc = new Scanner(System.in);
-        
-        // 입력: 트리의 정점 수 N, 루트 노드 R
+        //Scanner sc = new Scanner(new File("./basic/minimaxTree/inputMinimaxTree.txt"));  // For local testing
+        Scanner sc = new Scanner(System.in);
+
+        // Input: Number of nodes (N) and root node (R).
         int N = sc.nextInt();
         int R = sc.nextInt();
-        
-        // nodes 배열과 graph 초기화 (노드 id는 1부터 시작)
+
+        // Initialize the nodes array and the adjacency list (node IDs start from 1).
         nodes = new Node[N + 1];
         graph = new ArrayList[N + 1];
-        //graph = new ArrayList[N + 1];
         for (int i = 1; i <= N; i++) {
             nodes[i] = new Node(i);
             graph[i] = new ArrayList<>();
         }
-        
-        // 트리 간선 정보 입력 (양 끝 점 u, v)
+
+        // Input: Tree edge information (endpoints u and v).
         for (int i = 0; i < N - 1; i++) {
             int u = sc.nextInt();
             int v = sc.nextInt();
-            graph[u].add(v);
+            graph[u].add(v); // Add edge to the adjacency list (undirected graph).
             graph[v].add(u);
         }
-        buildTree(R, -1);
-        
-        // 리프 노드의 개수 L과 각 리프 노드의 번호와 값을 입력받음
+
+        // Build the tree structure starting from the root node.
+        buildTree(R, -1);  // -1 indicates no parent for the root.
+
+
+        // Input: Number of leaf nodes (L) and their IDs and values.
         int L = sc.nextInt();
         for (int i = 0; i < L; i++) {
             int leafId = sc.nextInt();
             int leafValue = sc.nextInt();
-            nodes[leafId].value = leafValue; 
+            nodes[leafId].value = leafValue; // Assign the value to the leaf node.
         }
-        
-        // Minimax 알고리즘 적용: 루트 노드는 MAX player로 시작
+
+        // Apply the Minimax algorithm, starting with the root node as the MAX player.
         minimax(nodes[R], true);
-        
-        // 질의 처리: Q개의 노드 번호에 대해 해당 노드의 값을 출력
+
+        // Process queries: For each query node, print its calculated Minimax value.
         int Q = sc.nextInt();
         for (int i = 0; i < Q; i++) {
             int q = sc.nextInt();
             System.out.println(nodes[q].value);
         }
-        
+
         sc.close();
     }
 
