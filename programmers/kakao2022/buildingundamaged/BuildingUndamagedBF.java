@@ -29,9 +29,6 @@ public class BuildingUndamagedBF {
         int n = board.length;
         int m = board[0].length;
         
-        // board의 범위를 커버할 수 있도록 (n+1) x (m+1) 크기의 차분 배열 생성
-        int[][] diff = new int[n + 1][m + 1];
-        
         // skill 배열을 순회하며 차분 배열에 영향을 기록합니다.
         for (int[] s : skill) {
             int type = s[0];

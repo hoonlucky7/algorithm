@@ -117,7 +117,7 @@
 // 6) Final Result: The initial call to the minimax function returns the best possible outcome (WIN, DRAW, or LOSS)
 //    for the current player from the current game state.
 
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.Scanner;
 
 public class AlphaTicTacToe {
@@ -223,8 +223,8 @@ public class AlphaTicTacToe {
     }
 
     public void solution() throws FileNotFoundException {
-        //Scanner sc = new Scanner(new File("./basic/minimaxTree/inputAlphaTicTacToe.txt"));
-        Scanner sc = new Scanner(System.in);
+        Scanner sc = new Scanner(new File("./basic/minimaxTree/inputAlphaTicTacToe.txt"));
+        //Scanner sc = new Scanner(System.in);
         int[][] board = new int[N][N];
 
         // Read the board state from input

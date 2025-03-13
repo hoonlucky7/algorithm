@@ -118,6 +118,7 @@ class SheepAndWolf {
     private int totalSheep = 0; // Total number of sheep in the graph
     private Set<Integer> nextNodes; // Set of nodes that can be visited next
 
+    @SuppressWarnings("unchecked")
     public int solution(int[] info, int[][] edges) {
         this.info = info;
         
