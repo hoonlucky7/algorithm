@@ -95,6 +95,7 @@ public class BuildingUndamaged {
         int n = board.length;
         int m = board[0].length;
 
+        int[][] diff = new int[n + 1][m + 1];
 
         for (int[] s : skill) {
             int type = s[0];
