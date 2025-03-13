@@ -125,13 +125,77 @@ import java.util.*;
 
 public class MinimaxTree {
     
+    private static List<List<Integer>> graph;
+    private static int[] nodeValues;
+
+    private static int dfs(int currentNode, int parentNode, 
+    int depth) {
+        if (nodeValues[currentNode] >= 0) {
+            return nodeValues[currentNode];
+        }
+
+        if (depth % 2 == 0) {
+            int bestValue = 0;
+            for (int child : graph.get(currentNode)) {
+                if (parentNode != child) {
+                    bestValue = Math.max(bestValue, 
+                    dfs(child, currentNode, depth + 1));
+                }
+            }
+            nodeValues[currentNode] = bestValue;
+            return bestValue;
+        } else {
+            int bestValue = Integer.MAX_VALUE;
+            for (int child : graph.get(currentNode)) {
+                if (parentNode != child) {
+                    bestValue = Math.min(bestValue, 
+                    dfs(child, currentNode, depth + 1));
+                }
+            }
+            nodeValues[currentNode] = bestValue;
+            return bestValue;
+        }
+    }
 
     public static void main(String[] args) throws FileNotFoundException{
-        Scanner scanner = new Scanner(new File("./basic/minimaxTree/inputMinimaxTree.txt"));
-        //Scanner scanner = new Scanner(System.in);
+        //Scanner scanner = new Scanner(new File("./basic/minimaxTree/inputMinimaxTree.txt"));
+        Scanner scanner = new Scanner(System.in);
         
-        
-        
+        int N = scanner.nextInt();
+        int R = scanner.nextInt();
+
+        nodeValues = new int[N + 1];
+        Arrays.fill(nodeValues, -1);
+
+        graph = new ArrayList<>(N + 1);
+        for (int i = 0; i <= N; i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        for (int i = 1; i <= N - 1; i++) {
+            int u = scanner.nextInt();
+            int v = scanner.nextInt();
+
+            graph.get(u).add(v);
+            graph.get(v).add(u);
+        }
+
+        int L = scanner.nextInt();
+
+        for (int i = 0; i < L; i++) {
+            int leafId = scanner.nextInt();
+            int leafValue = scanner.nextInt();
+            nodeValues[leafId] = leafValue;
+        }
+
+        dfs(R, 0, 0);
+
+        int Q = scanner.nextInt();
+
+        for (int i = 0; i < Q; i++) {
+            int q = scanner.nextInt();
+            System.out.println(nodeValues[q]);
+        }
         scanner.close();
     }
 }

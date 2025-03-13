@@ -223,8 +223,8 @@ public class AlphaTicTacToe {
     }
 
     public void solution() throws FileNotFoundException {
-        Scanner sc = new Scanner(new File("./basic/minimaxTree/inputAlphaTicTacToe.txt"));
-        //Scanner sc = new Scanner(System.in);
+        //Scanner sc = new Scanner(new File("./basic/minimaxTree/inputAlphaTicTacToe.txt"));
+        Scanner sc = new Scanner(System.in);
         int[][] board = new int[N][N];
 
         // Read the board state from input
