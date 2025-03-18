@@ -19,24 +19,31 @@
 
 // 게임 진행 과정:
 
-// 각 턴마다 현재 플레이어는 이동 가능한 모든 방향(상, 하, 좌, 우)을 탐색합니다.
-// 이동 불가능한 경우(보드 경계 벗어나거나 이미 사라진 발판)는 즉시 제외됩니다.
+// 각 턴마다 현재 플레이어는 이동 가능한 모든 방향
+// (상, 하, 좌, 우)을 탐색합니다.
+// 이동 불가능한 경우(보드 경계 벗어나거나 이미 사라진 발판)는 
+// 즉시 제외됩니다.
 // 승리할 수 있는 경우, 가능한 최소 이동 수로 승리하고, 
-// 반대로 패배할 경우 가능한 한 많은 이동으로 게임을 지연시키려 합니다.
+// 반대로 패배할 경우 가능한 한 많은 이동으로 게임을 지연
 // 재귀적 탐색 및 백트래킹
 
 // 종료 조건 :
-// 현재 플레이어의 위치가 보드 범위를 벗어나거나, 이미 발판이 사라진 경우 → 패배.
-// 현재 플레이어가 이동할 수 있는 유효한 방향이 없는 경우 → 패배.
+// 현재 플레이어의 위치가 보드 범위를 벗어나거나, 
+// 이미 발판이 사라진 경우 → 패배.
+// 현재 플레이어가 이동할 수 있는 유효한 방향이 없는 경우 
+// → 패배.
 
 // 재귀 단계:
 // 현재 플레이어의 발판을 일시적으로 제거(방문 처리).
-// 4가지 방향에 대해 재귀 호출을 수행하여 상대방의 반응을 예측합니다.
-// 상대방이 패배하는 결과가 있다면, 현재 플레이어는 승리할 수 있으며, 최소 이동 수를 기록합니다.
-// 모든 경우에서 상대방이 승리하면, 현재 플레이어는 패배하며, 최대 이동 수를 기록합니다.
+// 4가지 방향에 대해 재귀 호출을 수행하여 상대방의 반응을 예측
+// 상대방이 패배하는 결과가 있다면, 
+// 현재 플레이어는 승리할 수 있으며, 최소 이동 수를 기록합니다.
+// 모든 경우에서 상대방이 승리하면, 현재 플레이어는 패배하며, 
+// 최대 이동 수를 기록합니다.
 
 // 복원:
-// 재귀 호출 후, 원래 상태로 보드를 복원하여 다른 경로의 탐색에 영향을 주지 않도록 합니다.
+// 재귀 호출 후, 원래 상태로 보드를 복원하여 
+// 다른 경로의 탐색에 영향을 주지 않도록 합니다.
 
 // 시간 복잡도 분석
 // 보드 크기: 최대 5×5 (25칸)
@@ -99,16 +106,15 @@
 
 
 class DisappearingPlatform {
-
     private static final int[] DELTA_ROW = {-1, 1, 0, 0};
     private static final int[] DELTA_COL = {0, 0, -1, 1};
-
+    
     private int h;
     private int w;
 
     private static class GameResult {
-        private boolean canWin;
-        private int moveCount;
+        boolean canWin;
+        int moveCount;
 
         GameResult(boolean canWin, int moveCount) {
             this.canWin = canWin;
@@ -120,21 +126,23 @@ class DisappearingPlatform {
         return row < 0 || row >= h || col < 0 || col >= w;
     }
 
-    private GameResult playGame(int[][] board, int aRow, int aCol, int bRow, int bCol, 
-    int moveCount, boolean isAturn) {
-        int currentRow = isAturn ? aRow : bRow;
-        int currentCol = isAturn ? aCol : bCol;
-
-        if (isOutOfBounds(currentRow, currentCol) || board[currentRow][currentCol] == 0) {
+    private GameResult minimax(int[][] board, int aRow, int aCol, int bRow,
+     int bCol, int moveCount, boolean isAturn) {
+        int currentRow = isAturn ? aRow: bRow;
+        int currentCol = isAturn ? aCol: bCol;
+        
+        if (isOutOfBounds(currentRow, currentCol) 
+        || board[currentRow][currentCol] == 0) {
             return new GameResult(false, moveCount);
         }
 
         boolean canMove = false;
-
         for (int i = 0; i < 4; i++) {
             int nextRow = currentRow + DELTA_ROW[i];
             int nextCol = currentCol + DELTA_COL[i];
-            if (!isOutOfBounds(nextRow, nextCol) && board[nextRow][nextCol] == 1) {
+
+            if (!isOutOfBounds(nextRow, nextCol) 
+            && board[nextRow][nextCol] == 1) {
                 canMove = true;
                 break;
             }
@@ -148,28 +156,31 @@ class DisappearingPlatform {
 
         boolean canWin = false;
         int minMovesToWin = Integer.MAX_VALUE;
-        int maxmovesToLoss = 0;
+        int maxMoveToLoss = 0;
 
         for (int i = 0; i < 4; i++) {
             int nextRow = currentRow + DELTA_ROW[i];
             int nextCol = currentCol + DELTA_COL[i];
 
-            if (isOutOfBounds(nextRow, nextCol) || board[nextRow][nextCol] == 0) {
+            if (isOutOfBounds(nextRow, nextCol) 
+            || board[nextRow][nextCol] == 0) {
                 continue;
             }
 
             GameResult nextResult;
             if (isAturn) {
-                nextResult = playGame(board, nextRow, nextCol, bRow, bCol, moveCount + 1, false);
+                nextResult = minimax(board, nextRow, nextCol, bRow, bCol,
+                 moveCount + 1, false);
             } else {
-                nextResult = playGame(board, aRow, aCol, nextRow, nextCol, moveCount + 1, true);
+                nextResult = minimax(board, aRow, aCol, nextRow, nextCol,
+                 moveCount + 1, true);
             }
 
             if (!nextResult.canWin) {
                 canWin = true;
                 minMovesToWin = Math.min(minMovesToWin, nextResult.moveCount);
             } else {
-                maxmovesToLoss = Math.max(maxmovesToLoss, nextResult.moveCount);
+                maxMoveToLoss = Math.max(maxMoveToLoss, nextResult.moveCount);
             }
         }
 
@@ -177,8 +188,8 @@ class DisappearingPlatform {
 
         if (canWin) {
             return new GameResult(true, minMovesToWin);
-        } else {
-            return new GameResult(false, maxmovesToLoss);
+        } else{
+            return new GameResult(false, maxMoveToLoss);
         }
     }
 
@@ -186,7 +197,9 @@ class DisappearingPlatform {
         this.h = board.length;
         this.w = board[0].length;
 
-        GameResult gameResult = playGame(board, aloc[0], aloc[1], bloc[0], bloc[1], 0, true);
+        GameResult gameResult = minimax(board, aloc[0], aloc[1], bloc[0],
+         bloc[1], 0, true);
+
         return gameResult.moveCount;
     }
     
