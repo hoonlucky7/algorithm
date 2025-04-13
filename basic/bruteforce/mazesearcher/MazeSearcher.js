@@ -17,7 +17,7 @@ function bfs(maze, n, m) {
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
     
     while (queue.length > 0) {
-        const [r, c] = queue.shift();
+        const [r, c] = queue.shift(); // shift는 O(n)의 시간복잡도를 가지기 때문에 n이 큰 경우에 deque를 직접 고려해야함
         for (const [dr, dc] of directions) {
             const nr = r + dr;
             const nc = c + dc;

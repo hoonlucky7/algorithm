@@ -52,12 +52,12 @@ public class MazeSearcher {
     
     static void bfs(int sr, int sc) {
         Queue<Point> queue = new LinkedList<>();
-        queue.add(new Point(sr, sc));
+        queue.offer(new Point(sr, sc));
         // 시작 칸은 1로 처리 (문제에서 시작 칸도 포함)
         // (이미 maze[0][0]은 1로 주어짐)
         
         while (!queue.isEmpty()) {
-            Point cur = queue.remove();
+            Point cur = queue.poll();
             int cr = cur.r;
             int cc = cur.c;
             
@@ -74,7 +74,7 @@ public class MazeSearcher {
                 // 이동 가능한 칸(1)이고 아직 방문하지 않은 경우
                 if (maze[nr][nc] == 1) {
                     maze[nr][nc] = maze[cr][cc] + 1;
-                    queue.add(new Point(nr, nc));
+                    queue.offer(new Point(nr, nc));
                 }
             }
         }
