@@ -15,7 +15,8 @@ import java.util.*;
 public class MazeSearcher {
     static int n, m;
     static int[][] maze;
-    static int[] dr = {-1, 1, 0, 0};
+    static boolean[][] visited;
+    static int[] dr = {-1, 1, 0, 0}; // 상하좌우
     static int[] dc = {0, 0, -1, 1};
 
     static class Point {
@@ -36,44 +37,44 @@ public class MazeSearcher {
         m = Integer.parseInt(st.nextToken());
         
         maze = new int[n][m];
+        visited = new boolean[n][m];
+
         for (int r = 0; r < n; r++) {
             String line = br.readLine().trim();
             for (int c = 0; c < m; c++) {
                 maze[r][c] = line.charAt(c) - '0';
             }
         }
-        
-        // BFS를 이용하여 (0,0)에서 (N-1,M-1)까지의 최단 거리를 구함
+
+        // BFS 실행
         bfs(0, 0);
-        
-        // (N-1, M-1)의 값에 최단 경로 칸 수가 저장됨
+
+        // 도착 지점에 최단 거리 출력
         System.out.println(maze[n - 1][m - 1]);
     }
-    
+
     static void bfs(int sr, int sc) {
         Queue<Point> queue = new LinkedList<>();
         queue.offer(new Point(sr, sc));
-        // 시작 칸은 1로 처리 (문제에서 시작 칸도 포함)
-        // (이미 maze[0][0]은 1로 주어짐)
-        
+        visited[sr][sc] = true; // 시작점 방문 처리
+
         while (!queue.isEmpty()) {
             Point cur = queue.poll();
             int cr = cur.r;
             int cc = cur.c;
-            
-            // 4방향 탐색
+
             for (int i = 0; i < 4; i++) {
                 int nr = cr + dr[i];
                 int nc = cc + dc[i];
-                
-                // 미로 범위 체크
-                if (nr < 0 || nc < 0 
-                || nr >= n || nc >= m)
+
+                // 범위 벗어나면 건너뜀
+                if (nr < 0 || nc < 0 || nr >= n || nc >= m)
                     continue;
-                
-                // 이동 가능한 칸(1)이고 아직 방문하지 않은 경우
-                if (maze[nr][nc] == 1) {
-                    maze[nr][nc] = maze[cr][cc] + 1;
+
+                // 이동 가능한 칸이고 아직 방문하지 않았다면
+                if (maze[nr][nc] == 1 && !visited[nr][nc]) {
+                    maze[nr][nc] = maze[cr][cc] + 1; // 거리 갱신
+                    visited[nr][nc] = true;
                     queue.offer(new Point(nr, nc));
                 }
             }

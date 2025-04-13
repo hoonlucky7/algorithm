@@ -2,7 +2,10 @@ import sys
 from collections import deque
 
 def bfs(maze, n, m):
+    visited = [[False] * m for _ in range(n)]
+
     dq = deque([(0, 0)])
+    visited[0][0] = True
     while dq:
         r, c = dq.popleft()
         for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
