@@ -9,8 +9,10 @@ int bfs(vector<vector<int>>& maze, int n, int m) {
     int dr[4] = {-1, 1, 0, 0};
     int dc[4] = {0, 0, -1, 1};
 
+    vector<vector<bool>> visited(n, vector<bool>(m));
     queue<pair<int, int>> q;
     q.push({0, 0});
+    visited[0][0] = true;
 
     while (!q.empty()) {
         auto [r, c] = q.front();
@@ -21,8 +23,10 @@ int bfs(vector<vector<int>>& maze, int n, int m) {
             int nc = c + dc[i];
 
             // 미로 범위 체크 및 이동 가능한 칸 (1)인지 확인
-            if (nr >= 0 && nr < n && nc >= 0 && nc < m && maze[nr][nc] == 1) {
+            if (nr >= 0 && nr < n && nc >= 0 && nc < m && maze[nr][nc] == 1
+            && !visited[nr][nc]) {
                 maze[nr][nc] = maze[r][c] + 1;
+                visited[nr][nc] = true;
                 q.push({nr, nc});
             }
         }
