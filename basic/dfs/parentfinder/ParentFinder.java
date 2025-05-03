@@ -1,3 +1,12 @@
+// problem link : https://www.acmicpc.net/problem/11725
+// [solution]
+// 왜 DFS를 사용할까?
+// 트리의 특성 : 트리는 사이클이 없고, 각 노드는 정확히 하나의 부모를 가짐(루트 제외). 
+// DFS는 트리의 구조를 따라 한 갈래씩 탐색하므로 부모를 쉽게 찾을 수 있음
+// 시간 복잡도 : O(N)
+// DFS는 각 노드와 간선을 한 번씩만 방문하므로 
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,10 +21,16 @@ public class ParentFinder {
     static int count;
 
     public static void dfs(int node) {
+        // 현재 노드를 방문 처리
         visited[node] = true;
+        
+        // 현재 노드와 연결된 모든 인접 노드를 탐색
         for (int next : graph[node]) {
+            // 인접 노드가 아직 방문되지 않았다면
             if (!visited[next]) {
+                // 인접 노드의 부모를 현재 노드로 설정
                 result[next] = node;
+                // 인접 노드에서 DFS를 재귀적으로 호출하여 탐색 계속
                 dfs(next);
             }
         }
