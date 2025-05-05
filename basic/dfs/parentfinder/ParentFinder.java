@@ -27,13 +27,13 @@ public class ParentFinder {
     public static void dfs(int node) {
         // 현재 노드를 방문 처리
         visited[node] = true;
-        
+
         // 현재 노드와 연결된 모든 인접 노드를 탐색
         for (int next : adj[node]) {
             // 인접 노드가 아직 방문되지 않았다면
             if (!visited[next]) {
                 // 인접 노드의 부모를 현재 노드로 설정
-                parent[next] = node;
+                parent[next] = node;   
                 // 인접 노드에서 DFS를 재귀적으로 호출하여 탐색 계속
                 dfs(next);
             }
@@ -46,9 +46,9 @@ public class ParentFinder {
         queue.add(start);
         visited[start] = true;
 
-        // 3) 큐가 빌 때까지 반복합니다.
+        // 큐가 빌 때까지 반복합니다.
         while(!queue.isEmpty()) {
-            // 2) 큐에서 노드를 꺼내고, 
+            // 큐에서 노드를 꺼내고, 
             int node = queue.poll();
 
             // 해당 노드의 인접 노드 중 방문하지 않은 노드를 큐에 삽입합니다.
@@ -70,8 +70,9 @@ public class ParentFinder {
 
         int n = Integer.parseInt(st.nextToken()); // 정점 개수
 
+        // 인접리스트 초기화
         adj = new ArrayList[n + 1];
-        
+
         for (int i = 1; i <= n; i++) {
             adj[i] = new ArrayList<>();
         }
@@ -86,9 +87,12 @@ public class ParentFinder {
 
         parent = new int[n + 1];
         visited = new boolean[n + 1];
+        //dfs
         //dfs(1);
+        //bfs
         bfs(1);
 
+        // 빠르게 출력
         StringBuilder sb = new StringBuilder();
         for (int i = 2; i <= n; i++) {
             sb.append(parent[i]).append("\n");
