@@ -1,4 +1,6 @@
 import sys
+from collections import deque
+
 input = sys.stdin.readline
 
 # 노드의 개수 입력
@@ -28,7 +30,7 @@ visited = [False] * n
 leaf_count = 0
 
 def dfs(node):
-    global leaf_count
+    global leaf_count, adj, visited
     visited[node] = True
     has_child = False
     
@@ -46,9 +48,33 @@ def dfs(node):
     if not has_child:
         leaf_count += 1
 
+#bfs 구현
+def bfs(start):
+    global leaf_count, adj, visited
+
+    queue = deque([start])
+    visited[start] = True
+    while queue:
+        node = queue.popleft()
+        has_child = False
+
+        for next in adj[node]:
+            # 삭제된 노드는 건너뛰기
+            if next == delete_node:
+                continue
+            if (not visited[next]):
+                has_child = True
+                visited[next] = True
+                queue.append(next)
+
+        # 자식 노드가 없다면 리프 노드
+        if not has_child:
+            leaf_count += 1
+
 # 삭제할 노드가 루트 노드인 경우, 트리가 없어지므로 리프 노드는 0개
 if delete_node == root_node:
     print(0)
 else:
-    dfs(root_node)
+    #dfs(root_node)
+    bfs(root_node)
     print(leaf_count)

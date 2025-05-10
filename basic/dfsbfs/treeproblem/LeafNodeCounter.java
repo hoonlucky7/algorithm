@@ -10,7 +10,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class LeafNodeCounter {
@@ -40,6 +42,35 @@ public class LeafNodeCounter {
         
         if (!hasChild) {
             leafCount++;
+        }
+    }
+
+    static void bfs(int start) {
+        Queue<Integer> queue = new LinkedList<>();
+
+        queue.add(start);
+        visited[start] = true;
+
+        // 큐가 빌 때까지 반복합니다.
+        while(!queue.isEmpty()) {
+            // 큐에서 노드를 꺼내고, 
+            int node = queue.poll();
+
+            boolean hasChild = false;
+            // 해당 노드의 인접 노드 중 방문하지 않은 노드를 큐에 삽입합니다.
+            for (int next : adj[node]) {
+                if (next == deleteNode) {
+                    continue;
+                }
+                if (!visited[next]) {
+                    visited[next] = true;
+                    hasChild = true;
+                    queue.add(next);
+                }
+            }
+            if (!hasChild) {
+                leafCount++;
+            }
         }
     }
 
@@ -77,8 +108,9 @@ public class LeafNodeCounter {
 
         visited = new boolean[n + 1];
         leafCount = 0;
-        dfs(rootNode);
-        
+        //dfs(rootNode);
+        bfs(rootNode);
+
         System.out.println(leafCount);
     }
 }
