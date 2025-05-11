@@ -14,7 +14,7 @@ def dfs(node):
     global leaf_count, adj, visited, delete_node
     visited[node] = True
     has_child = False
-    
+
     for next_node in adj[node]:
         # 삭제된 노드는 건너뛰기
         if next_node == delete_node:
@@ -29,28 +29,28 @@ def dfs(node):
     if not has_child:
         leaf_count += 1
 
-#bfs 구현
+# bfs 구현
 def bfs(start):
     global leaf_count, adj, visited, delete_node
 
     queue = deque([start])
     visited[start] = True
+
     while queue:
         node = queue.popleft()
         has_child = False
 
         for next in adj[node]:
-            # 삭제된 노드는 건너뛰기
             if next == delete_node:
                 continue
-            if (not visited[next]):
+            if not visited[next]:
                 has_child = True
                 visited[next] = True
                 queue.append(next)
 
-        # 자식 노드가 없다면 리프 노드
         if not has_child:
             leaf_count += 1
+    
 
 # 노드의 개수 입력
 n = int(input())
@@ -66,17 +66,15 @@ root_node = -1
 for i in range(n):
     parent = parents[i]
     if parent == -1:
-        root_node = i  # 루트 노드 기록
+        root_node = i
     else:
-        adj[parent].append(i)  # 부모 노드에 자식 추가
-        adj[i].append(parent)  # 양방향으로 연결 (트리 탐색용)
+        adj[parent].append(i)
 
 # 삭제할 노드 입력
 delete_node = int(input())
 
 # 방문 배열 초기화
 visited = [False] * n
-leaf_count = 0
 
 # 삭제할 노드가 루트 노드인 경우, 트리가 없어지므로 리프 노드는 0개
 if delete_node == root_node:
