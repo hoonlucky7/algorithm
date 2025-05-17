@@ -19,41 +19,49 @@ n = int(input())
 area = [list(map(int, input().split())) for _ in range(n)]
 
 # 최소, 최대 높이 계산 및 고유 높이 수집
-min_h = min(min(row) for row in area)
 max_h = max(max(row) for row in area)
+min_h = min(min(row) for row in area)
+
 unique_heights = set()
 for row in area:
     unique_heights.update(row)
 
-# 물 높이 목록: (min_h - 1) + 고유 높이
 water_levels = [min_h - 1] + sorted(unique_heights)
+
 
 # 방향 벡터
 dr = (-1, 1, 0, 0)
 dc = (0, 0, -1, 1)
 
+#bfs 구현
 def bfs(sr, sc, h, visited):
     q = deque([(sr, sc)])
     visited[sr][sc] = True
+
     while q:
         r, c = q.popleft()
+
         for d in range(4):
             nr, nc = r + dr[d], c + dc[d]
             if 0 <= nr < n and 0 <= nc < n:
                 if not visited[nr][nc] and area[nr][nc] > h:
                     visited[nr][nc] = True
-                    q.append((nr, nc))
+                    q.append((nr,nc))
+
+
 
 # 안전 영역 최댓값 계산
 result = 0
+
 for water in water_levels:
     visited = [[False] * n for _ in range(n)]
     count = 0
-    for i in range(n):
-        for j in range(n):
-            if not visited[i][j] and area[i][j] > water:
-                bfs(i, j, water, visited)
+    for r in range(n):
+        for c in range(n):
+            if not visited[r][c] and area[r][c] > water:
+                bfs(r, c, water, visited)
                 count += 1
+
     result = max(result, count)
 
 # 출력
