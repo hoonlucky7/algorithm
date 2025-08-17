@@ -51,7 +51,7 @@ public class Tomato {
     static int N;
     static int H;
     static int[][][] boxes;
-    static boolean[][][] visied;
+    static boolean[][][] visited;
     static int[][][] days;
     static int[] dr = {-1, 1, 0, 0, 0, 0};
     static int[] dc = {0, 0, -1, 1, 0, 0};
@@ -59,12 +59,13 @@ public class Tomato {
     static Queue<Point> queue = new LinkedList<>();
 
     static class Point {
-        int r, c, h;
+        int h, r, c;
         public Point(int h, int r, int c) {
             this.h = h;
             this.r = r;
             this.c = c;
         }
+        
     }
 
     static void bfs() {
@@ -78,13 +79,13 @@ public class Tomato {
                 int nr = cr + dr[i];
                 int nc = cc + dc[i];
                 int nh = ch + dh[i];
-
-                if (nr < 0 || nc < 0 || nr >= N || nc >= M || nh < 0 || nh >= H) {
+                
+                if (nr < 0 || nc < 0 || nh < 0 || nr >= N || nc >= M || nh >= H) {
                     continue;
                 }
 
-                if (boxes[nh][nr][nc] == 0 && !visied[nh][nr][nc]) {
-                    visied[nh][nr][nc] = true;
+                if (boxes[nh][nr][nc] == 0 && !visited[nh][nr][nc]) {
+                    visited[nh][nr][nc] = true;
                     days[nh][nr][nc] = days[ch][cr][cc] + 1;
                     boxes[nh][nr][nc] = 1;
                     queue.offer(new Point(nh, nr, nc));
@@ -92,6 +93,7 @@ public class Tomato {
             }
         }
     }
+
 
     public static void main(String[] args) throws IOException {
         // 빠른 입력을 위한 BufferedReader 사용
@@ -104,7 +106,7 @@ public class Tomato {
         H = Integer.parseInt(st.nextToken()); // 높이
         
         boxes = new int[H][N][M];
-        visied = new boolean[H][N][M];
+        visited = new boolean[H][N][M];
         days = new int[H][N][M];
 
         for (int h = 0; h < H; h++) {
@@ -113,7 +115,7 @@ public class Tomato {
                 for (int c = 0; c < M; c++) {
                     boxes[h][r][c] = Integer.parseInt(st.nextToken());
                     if (boxes[h][r][c] == 1) {
-                        visied[h][r][c] = true;
+                        visited[h][r][c] = true;
                         queue.offer(new Point(h, r, c));
                     }
                 }
@@ -122,20 +124,20 @@ public class Tomato {
 
         bfs();
 
-        int maxCount = 0;
+        int maxDays = 0;
 
         for (int h = 0; h < H; h++) {
             for (int r = 0; r < N; r++) {
                 for (int c = 0; c < M; c++) {
-                    if (boxes[h][r][c] == 0) { // 익지 못한 토마토 존재
+                    if (boxes[h][r][c] == 0) {
                         System.out.println(-1);
                         return;
                     }
-                    maxCount = Math.max(maxCount, days[h][r][c]);
+                    maxDays = Math.max(maxDays, days[h][r][c]);
                 }
             }
         }
 
-        System.out.println(maxCount);
+        System.out.println(maxDays);
     }
 }

@@ -56,18 +56,21 @@ days = [[[0] * M for _ in range(N)] for _ in range(H)]
 
 queue = deque()
 
+# 익은 토마토 위치 저장
 for h in range(H):
     for r in range(N):
         row = list(map(int, input().split()))
         for c in range(M):
             boxes[h][r][c] = row[c]
             if row[c] == 1:
-                queue.append((h, r, c))  # 익은 토마토 위치 저장
+                queue.append((h, r, c))
+
 
 # BFS 함수
 def bfs():
     while queue:
         ch, cr, cc = queue.popleft()
+
         for i in range(6):
             nh = ch + dh[i]
             nr = cr + dr[i]
@@ -78,14 +81,15 @@ def bfs():
                     days[nh][nr][nc] = days[ch][cr][cc] + 1
                     queue.append((nh, nr, nc))
 
-bfs()
 
+
+bfs()
 # 결과 계산
 max_day = 0
 for h in range(H):
     for r in range(N):
         for c in range(M):
-            if boxes[h][r][c] == 0:  # 익지 못한 토마토가 있음
+            if boxes[h][r][c] == 0:
                 print(-1)
                 sys.exit(0)
             max_day = max(max_day, days[h][r][c])
